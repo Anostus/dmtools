@@ -1,0 +1,1472 @@
+<html>
+<head>
+<title>DM Toolbox</title>
+<script type="text/javascript">
+//BEGIN DATA
+var i = 0;
+var path = new Array();
+
+// LIST OF IMAGES
+path[0] = "https://40.media.tumblr.com/70d51a6f89b4dfd2545be9834ba8e55c/tumblr_noxklvjP0K1tarntro1_250.png";
+path[1] = "https://41.media.tumblr.com/3b5d9cf9ef057acc68a60b065e7df46b/tumblr_noxklvjP0K1tarntro2_250.png";
+path[2] = "https://41.media.tumblr.com/1b2861364c57da53767a517849166108/tumblr_noxklvjP0K1tarntro3_250.png";
+path[3] = "https://40.media.tumblr.com/d40f7666723d9925bf191f7f99ccde95/tumblr_noxklvjP0K1tarntro4_250.png";
+path[4] = "https://40.media.tumblr.com/09ef18f6527a0330cdee28f9946f061e/tumblr_noxklvjP0K1tarntro5_250.png";
+path[5] = "https://40.media.tumblr.com/2fa25c5a70a9789dae83bc5450122a19/tumblr_noxklvjP0K1tarntro6_250.png";
+
+var roomdata = new Array(10);
+var neighboring = new Array(10);
+var neighbordist = new Array(10);
+
+var colour = [
+"red", "blue", "black", "green"
+];
+
+var sideq = [
+"Find a specific item rumored to be in the area.",
+"Retrieve a stolen item in the villain's possession.",
+"Recieve information from an NPC in the area.",
+"Rescue a captive.",
+"Discover the fate of a missing NPC.",
+"Slay a specific monster.",
+"Discover the origin of a strange phenomenon in the area.",
+"Secure the aid of a character or creature in the area."
+];
+
+var dungeonStocking1 = [
+"Monster with Treasure", "Monster", "Trap", "Special", "Empty with Treasure", "Empty"
+];
+
+var resources = [
+"1", "2", "2", "3", "3", "4",
+];
+
+var restype = [
+"vegetable", "vegetable", "vegetable", "animal", "animal", "mineral"
+];
+
+var recev = [
+"major positive", "minor positive", "minor positive", "neutral", "neutral", "neutral", "minor negative", "minor negative", "major negative", "disaster"
+];
+
+var roomtype = [
+"public assembly",
+"containment and imprisonment",
+"pleasure and relaxation",
+"general function",
+"war and conflict",
+"deities and worship",
+"learning and knowledge",
+"specific utility",
+];
+
+var worldshattering = [
+"Rise of a leader or an era",
+"Fall of a leader or an era",
+"Cataclysmic disaster",
+"Assault or invasion",
+"Rebellion, revolution, overthrow",
+"Extinction or depletion",
+"New organization",
+"Discovery, expansion, invention",
+"Prediction, omen, prophecy",
+"Myth and legend",
+];
+
+var socialrole = [
+"productivity", "productivity", "productivity", "military", "military", "sovereignty"
+];
+
+var fvroomEntrance = [
+"Cave-in", "Lair of a monster", "A basement", "A secret door", "Behind a waterfall", "The mouth of a dark cavern", "Stone valve",
+ "Abandoned mine shaft", "A secret tunnel", "Half-buried ruin", "Mouth of a volcano", "Magically shaped portal", "A crevasse, fissure, or gorge", 
+ "A cave on the side of cliff", "A massive stone megalith", "Teleportation from elsewhere", "An underwater tunnel", "An illusion", "A sewer", "An insect hive"
+];
+
+var fvroomPuzzle = [
+"Riddle: I touch your face, I'm in your words, I'm lack of space, And beloved by birds... / A: Air or Wind",
+"Riddle: From the beginning of eternity, To the end of time and space, To the beginning of every end, And the end of every place... / A: E",
+"Riddle: In a marble hall, white as milk, Lined with skin as soft as silk, Within a fountain crystal clear, A golden apple, doth appear, No doors there are to this stronghold, Yet thieves break in to steal the gold... / A: Egg",
+"Riddle: My second is performed by my first, And, it is thought, A thief by the mark of the whole Might be caught / A: Footstep",
+"Riddle: What is neither fish nor flesh, feathers nor bone, But still has fingers, and thumbs of its own? / A: Glove",
+"Riddle: Crushed beneath trampling feet, kept in darkness and cold. I am useless if I have suffered not; but having suffered, my temper is sweet and strong to all those who partake. What am I, at start? / A: Grape",
+"Riddle: Two bodies have I, Though both joined in one. The more still I stand, The quicker I run... / A: Hourglass",
+"Riddle: What force and strength cannot get through, I, with a gentle touch, can do; And many in these twisted halls would stand, Were I not, as a friend, at hand... / A: Key",
+"Riddle: I tie and hold, capture and bind, yet both knights and knaves doth crave me. I faithfully enslave all within my grasp, whether or not they seek me. Yet those who have never felt my unmerciful hand, are pitied by their fellow Man... / A: Love",
+"Riddle: More beautiful than the face of your god, Yet more wicked than a Demon's forked tongue? Dead men eat it all the time, Live men who eat it die slow... / A: Nothing",
+"Riddle: I come out of the earth, I am sold in the market. He who buys me cuts off my tail, Takes off my suit of silk, And weeps beside me when I am dead... / A: Onion",
+"Riddle: What is the thing which comes in sheets, yet cannot be folded or gathered again? / A: Rain",
+"Riddle: There is a thing, which nothing is, Yet it has a name. It's sometimes tall And sometimes short  It tumbles when we fall It joins our sport, And plays at every game... / A: Shadow",
+"Riddle: Elvish mithril and Draconic silver, crumble I can. But first, I improve all created by man. I devour all things, Bird and beast, serfs and kings. Though my pace is even, men curse my speed, Wishing I were lazier in their hour of need. I can creep and crawl, or rush, even fly. I am all thou hast. Tell me, who am I? / A: Time",
+"Riddle: I run smoother than any rhyme, I love to fall but cannot climb. I tremble at each breath of air, And yet can heaviest burdens bear... / A: Water",
+
+"The PCs find the ghost of a hero an ancient race. If they want to give him peace, they must find his corpse and bury it using a complex ritual.",
+"The PCs find a magical scroll. If they solve its puzzle, they receive a magic item from another plane.",
+"The PCs find a madman trapped in the dungeon. If they cure him, he will reveal vital information about the place.",
+"Magic puzzle, such as a chessboard tile floor with special squares.",
+"An intelligent entity blocks access to the rest of the complex and must be befriended, not fought.",
+"A magical concierge must be bluffed or coerced without him raising the alarm.",
+"A dirt floor crawls with poisonous snakes that will slither out of the way to avoid open flame. (A few might follow at a distance and strike later on.)",
+];
+
+var fvroomClimax = [
+"Fighter", "Cleric", "Thief", "Mage", "Demon", "Humanoid", "Dragon", "Aberration"
+];
+
+var goal = [
+"Capture", "Retrieve", "Defeat", "Discover", "Destroy", "Escape", 
+"Find", "Negotiate", "Obtain", "Protect", "Rescue", "Survive"
+];
+
+var advThreat = [
+"A king", "A goblin tribe", "A dark witch", "A lich", "A zombie army"
+, "A giant death worm"
+];
+
+var advWants = [
+"wants to destroy/corrupt", "wants to steal/capture", "wants to merge with",
+"wants to protect/empower", "wants to create", "wants to occupy"
+];
+
+var advTarget = [
+"the queen", "the giant crystal", "the giant keep", "the dwarf ruins",
+"the sword of scrolls", "the demon portal"
+];
+
+var advAccomplish = [
+"which will destroy the kingdom.", "which will raise the dead.",
+"which will enslave the elves", "which will start a war.",
+"which will rip a hole in time", "which will fix everything",
+];
+
+var treasure = [
+"Art", "Jeweled Items", "Goods", "Coins", "Furnishings and clothing",
+"Gems", "Special and magic items"
+];
+
+var altTreasure = [
+"Exotic perfumes",
+"Essential oils",
+"Rare Spices",
+"Valuable Furs",
+"Silk and other fabrics",
+"Exotic teas",
+"Preserved zoological specimen",
+"Several rare books",
+"An ancient idol",
+"A ceremonial dagger",
+"Maps of unknown lands",
+"Seed pods for rare flowers",
+"Medicinal herbs",
+"Exotic poisons",
+"Delicate glassworks",
+"Fine pottery",
+"Scented candles",
+"A bag of glass eyes",
+"An oriental rug",
+"Prayer mats",
+"Fine soaps",
+"Expensive cosmetics",
+"Lady's finery",
+"Men's finery",
+"Handcrafted boots or shoes",
+"Salts",
+"Coffee beans",
+"Richly decorated Lantern",
+"A fallen meteor",
+"Pig iron",
+"Rare mineral specimens",
+"Horns of an obscure beast",
+"Basilisk's teeth",
+"Finely decorated beer stein",
+"Oddly colored sand",
+"Several unusual hats",
+"Preserved insects",
+"An eerie portrait",
+"Rich liqueurs",
+"Fiery whiskeys",
+"Several dog collars",
+"Beautiful tapestries",
+"Telescope",
+"bundled love letters",
+"Blood-stained handcuffs",
+"A hunting horn",
+"A clockwork doll",
+"Fine ink and quills",
+"Mold crown",
+"Lodestones",
+"Sheets of music",
+"A music box",
+"A decorated box",
+"Marbles",
+"A children's doll",
+"A ring of keys",
+"Crystal ball",
+"Belt made of snake skin",
+"A primitive ceremonial mask",
+"finely wrought spectacles",
+"A deed of ownership to far away property",
+"A scroll of ambiguously written prophecies",
+"A bird whistle",
+"A compass that points due south",
+"A patch of preserved, tattooed human skin",
+"A fool's motley costume",
+"A monstrous human skull",
+"Dice",
+"Diviners runes or bones",
+"A lurid sculpture",
+"A rusting gauntlet",
+"Abacus",
+"Mortar and Pestle",
+"A gilded slave collar",
+"An empty bird cage",
+"An expertly crafted musical instrument",
+"A large crystal prism",
+"Silverware",
+"A possibly magical wand",
+"A lord and lady's wedding bands",
+"An urn full of ashes",
+"A quiver of bone-tipped arrows",
+"A tiny coffin",
+"A board game",
+"Playing cards",
+"Dragon scales",
+"A small creature (DMs Choice), inexplicably alive",
+"Several feet of rattling chain",
+"Fine burial shrouds",
+"A jar of acid. And a matching jar of base",
+"Fireworks",
+"Caltrops",
+"A very old bottle of wine",
+"Shrunken head",
+"Healing balms and salves",
+"A handbell",
+"Mummer's whiteface",
+"Puppets",
+"A deed to marriage to a prince/princess"
+];
+
+var trick1 = [
+"altar", "aquarium", "arch", "bookcase", "bridge", "ceiling", 
+"chandelier", "container", "corpse", "dome", "door", "fire", 
+"fireplace", "force field", "fountain", "furnishing", "idol", 
+"illusion", "machine", "mirror", "monster", "mosaic", "painting", 
+"passage", "pedestal", "pillar", "pit", "pool", "pool", "room", 
+"stairway", "statue", "tapestry", "vegetation", "wall", "well", 
+];
+
+var trick2 = [
+"ages/makes younger", "antimagic/magic resistant", "asks riddle", 
+"attacks", "casts geas", "casts lightning bolt", "casts raise dead", 
+"casts sleep", "changes class", "changes sex", "curses", 
+"dispenses fake treasure/magic items", "dispenses treasure/magic items",
+"distorts dimensions of room", "is gaseous", "gives map to exit",
+"gives map to random location", "gives map to treasure/monster",
+"grants/reverses wish", "hovers", "is invisible", "lowers a random stat",
+"part missing, upon replacement destroys a possession",
+"part missing", 
+"part missing, upon replacement serves for 1d20 days", 
+"polymorphs character", "raises a random stat", 
+"reverses/eliminates gravity", "steals", "suspends animation", 
+"swaps bodies", "is symbiotic", "talks intelligently/in rhyme/nonsense", 
+"teleports", "transforms into creature", "yells and screams", 
+];
+
+var dSix = [
+"1", "2", "3", "4", "5", "6"
+];
+
+var gmEm = [
+"No, and...", "No", "No, but...", "Yes, but...", "Yes", "Yes, and..."
+];
+
+var twist0 = [
+"Yes.", "No", "No","No","No","No"
+];
+
+var twist1 = [
+"NPC", "Organization", "Physical event", "Emotional event", "Item"
+];
+
+var twist2 = [
+"appears", "ends the scene", "alters the locations", "helps the hero",
+"hinders the hero", "changes the goal"
+];
+
+var scene = [
+"Dramatic Scene", "Dramatic Scene", "Dramatic Scene", "Quiet Scene",
+"Quiet Scene", "Meanwhile"
+];
+
+var physicalQuirks1 = [
+"Missing", "Smaller", "Larger", "Marked", "Odd", "Habit", "Ornamented",
+"Remarkable", "Beautiful"
+];
+
+var physicalQuirks2 = [
+"Eye(s)", "Ear(s)", "Nose", "Mouth", "Arm(s)", "Hand(s)", "Leg(s)", "Feet",
+"Hair", "Mustache", "Beard"
+];
+
+var personalityQuirks1 = [
+"Great lack of", "Lack of", "Abundance of", "Great abundance of"
+];
+
+var personalityQuirks2 = [
+"Pride", "Bravery", "Courage", "Curiosity", "Loyalty", "Honesty", 
+"Diligence", "Temper", "Independence", "Confidence", "Appetite (Food)",
+"Appetite (Drink)", "Appetite (Money)", "Appetite (Body)", 
+"Wisdom", "Charisma", "Intelligence", "Talkativeness", "Cleanliness"
+];
+
+var personality = [
+"Cranky", "Jock", "Lazy", "Peppy", "Smug", "Snooty", "Sweet"
+];
+
+var motivation = [
+"Altruism", "Avarice/Greed", "Cursed", "Discovery/Experience", 
+"Envy/Lust", "Faith", "Fame/Idolatry", "Family", "Freedom", "Glory", 
+"Greed", "Honor/Oath-bound", "Joy", "Love", "Power", "Pride", 
+"Respect", "Revenge", "Survival", "Wealth",
+];
+
+var skill = [
+"Physical", "Subterfudge", "Knowledge", "Communication", "Survival"
+];
+
+var pickpocket = [
+"Fake platinum piece (20% chance shopkeeper's notice. 100% chance moneychanger notices.)",
+"Ball of string",
+"1-4 dried herrings (edible)",
+"Wooden snuff box, 3 pinches of snuff remaining (induces sneezing for 1 round if sniffed)",
+"Ornate iron key to a Members Only club",
+"Silver-plated neck chain with broken clasp",
+"Pair of bone dice (30% chance of being loaded)",
+"12 oz. clay flask of grain alcohol",
+"1-10 thistleburrs",
+"Folded sheet of ragged parchment with various foodstuffs listed",
+"Onion (10% chance it is rotten)",
+"2-8 colored glass spheres, each ¾ inch in diameter",
+"Deck of ordinary, battered playing cards (35% chance of being marked)",
+"Small book containing the definitions of common words and phrases in the country's official language",
+"Plain wooden comb",
+"Cowhide wallet containing identity papers appropriate to the encounter",
+"Clod of dirt",
+"Small speckled frog, live",
+"50 gp Promissory note to the local moneychanger (5% chance per turn, cumulative, of the victim discovering the theft and alerting the money-changer and/or the city watch)",
+"Cloth bag containing about ½ oz. of exotic crushed herbs, along with a wooden pipe",
+"4-inch-long wooden wind instrument that produces raspberry-like sound when blown",
+"A 2-by-3-inch portrait of a woman or man comely enough to cause the viewer to react as if in the presence of a person with 18 charisma",
+"An embarrassingly explicit love letter to a well-known woman of easy virtue from a prominent (and married!) local politician",
+"8-inch-diameter coil of fine copper wire",
+"Ring of Visibility (A simple copper band with a non-magical rune engraved on it; when worn the wearer will be plainly visible to anyone within sight, exactly as before donning the ring!)",
+"Sixteen 3-by-5-inch cards of stiff parchment, numbered consecutively, written in an unfamiliar language which translates as notes on The Fascinating Permutations of Economics in an Agrarian Society",
+"A bent copper piece",
+"Cold beef sandwich on thick black bread, wrapped in dirty cloth (hot mustard optional)",
+"Vial of vile perfume",
+"Leather bag containing a 25mm lead figurine of the victim, dressed outlandishly (describe modern S-piece suit) and 6 oddly shaped bone dice",
+"Two engraved invitations (generic) to a Ball at the Palace/Manor House/Castle etc., the following week; formal dress (75% chance that the former owner will simply assume them lost)",
+"A dead bug (of whatever sort the player hates most)",
+"2-8 interesting but completely valueless stones",
+"Tattered map (DM's determination of contents, i.e., city, ocean, etc.; it should be missing information or be partially inaccurate)",
+"Silver ring with partially legible elvish script on the inner surface: . . . to bring them all, and in the . . . (cheap facsimile, silver-plated lead)",
+"One-quarter pound of cheese (DM's option as to type and condition)",
+"Quill pen, broken nib",
+"Feather of Lightness (when tossed into the air, this pigeon-feather will float lazily to the ground)",
+"Vial of mild poison, sufficient to induce vomiting for 1-4 rounds",
+"White mouse, live (trained and friendly)",
+"Pouch of 20 wooden 5 cp coins",
+"Lump of coal",
+"Tinderbox",
+"Small lodestone attached to leather thong, with a runic N chiseled into one end (indicates magnetic north)",
+"12 oz. flask of very cheap wine, labeled Old Wyvern Breath. It has a heavy, overpowering bouquet that can knock a buzzard off a dung-wagon",
+"Set of 2-8 iron keys (DM's choice as to where the keys may be used, if anywhere)",
+"Small, black leather book containing 5-20 names and addresses (DM's discretion as to contents)",
+"Orange peels",
+"1-4 cheap cigars, with a pungent aroma reminiscent of a stable",
+"One-quarter pound sack of oats",
+"Wooden wrist sundial, broken strap",
+"Small slip of parchment indicating that (fill in name) owes the city 10 cp for leaving his horse in a proscribed area, one week overdue",
+"Stiff parchment card containing the name and address of the town's best tavern and a message indicating that the card is good for one on the house",
+"One-inch cube constructed of smaller interlocking moveable colored cubes (anyone who shifts the positions of the smaller cubes must save vs. spell at + 3 or be confused for 1-4 rounds)",
+"1-inch-diameter ball of hard, red rubber",
+"A notice on crumbled parchment, dated that day, to the effect that the bearer is not to be found in taverns, inns, brothels or in the company of known criminals, for a period of 1-6 months; signed by the Captain of the City Watch",
+"Wooden vial of spice (cinammon, oregano, nutmeg, etc.)",
+"Wad of gum arabic, sticky and lint-covered",
+"Bag of beans (usually ordinary, but a 5% chance that it is the magic item of the same name)",
+"1-4 potatoes",
+"Pair of cloth men's gloves, knitted so as to leave the thumb and fingers exposed",
+"Small knife (3-inch blade, bone handle, 1 hp damage) and a half-whittled chunk of wood",
+"Wooden case containing vials of red, black, and white grease paint and a thin stick of dark graphite",
+"3 darts (damage 1-3/1 -2) in a leather case",
+"Wedge of cold cheese and onion pie wrapped in greased brown parchment",
+"Sand",
+"3-inch-diameter wooden brooch with Vote (DM fills in name) for Grand Vizier burnt into the outer face",
+"Blackjack",
+"6-inch-long green snake, live (but harmless)",
+"Gold necklace inset with rubies and emeralds (gold plate, paste gems ? easily recognizable as costume jewelry)",
+"Mummified monkey's paw on leather thong (2% chance of enchantment enabling the paw to grant one limited wish)",
+"Small silver holy symbol of a lawful good religion, fastened on a broken chain",
+"Half-eaten head of cabbage",
+"Deck of brand-new, non-magical playing cards decorated with the same images found on a deck of many things",
+"Vial of camphor-menthol unguent (will ease headache and clear clogged nasal passages)",
+"Crude bearclaw and rawhide necklace",
+"Book containing religious hymns, psalms, etc., with the inscription 'Gidyon' on the flyleaf (alignment of religion is DM's choice)",
+"Peddler's license; grants the licensee permission to sell wine in the marketplace",
+"Set of wooden teeth, two or three of which are cracked",
+"Parchment signed by the Chief of the City Watch, giving the designated bearer safe passage anywhere in the city or therefrom (bearer's signature may altered by a scribe for 5 gp)",
+"Heel from lady's shoe",
+"Personal diary (contents determined by encounter; owner may or may not desire its return)",
+"Jar of adhesive paste of sufficient strength to bind parchment or small bits of wood",
+"2-8 nuggets of iron pyrites (fool's gold)",
+"Small pouch containing three nutshells and a pea",
+"2-12 wooden arrows, each 3 inches long, for stirring drinks",
+"Rolled-up pair of used black silk stockings",
+"A 3-by-5-inch card of stiff parchment identifying the bearer as having a highly contagious skin disease (which may or may not be true)",
+"A mummified goblin hand",
+"A piece of crystal that faintly glows in the moonlight",
+"A gold coin minted in an unknown land",
+"A diary written in a language you don't know",
+"A brass ring that never tarnishes",
+"An old chess piece made from glass",
+"A pair of knucklebone dice, each with a skull symbol on the side that would normally show six pips",
+"A small idol depicting a nightmarish creature that gives you unsettling dreams when you sleep near it",
+"A rope necklace from which dangles four mummified elf fingers",
+"The deed for a parcel of land in a realm unknown to you",
+"A 1-ounce block made from an unknown material",
+"A small cloth doll skewered with needles",
+"A tooth from an unknown beast",
+"An enormous scale, perhaps from a dragon",
+"A bright green feather",
+"An old divination card bearing your likeness",
+"A glass orb filled with moving smoke",
+"A 1-pound egg with a bright red shell",
+"A pipe that blows bubbles",
+"A glass jar containing a weird bit of flesh floating in pickling fluid",
+"A tiny gnome-crafted music box that plays a song you dimly remember from your childhood",
+"A small wooden statuette of a smug halfling",
+"A brass orb etched with strange runes",
+"A multicolored stone disk",
+"A tiny silver icon of a raven",
+"A bag containing forty-seven humanoid teeth, one of which is rotten",
+"A shard of obsidian that always feels warm to the touch",
+"A dragon's bony talon hanging from a plain leather necklace",
+"A pair of old socks",
+"A blank book whose pages refuse to hold ink, chalk, graphite, or any other substance or marking",
+"A silver badge in the shape of a five-pointed star",
+"A knife that belonged to a relative",
+"A glass vial filled with nail clippings",
+"A rectangular metal device with two tiny metal cups on one end that throws sparks when wet",
+"A white, sequined glove sized for a human",
+"A vest with one hundred tiny pockets",
+"A small, weightless stone block",
+"A tiny sketch portrait of a goblin",
+"An empty glass vial that smells of perfume when opened",
+"A gemstone that looks like a lump of coal when examined by anyone but you",
+"A scrap of cloth from an old banner",
+"A rank insignia from a lost legionnaire",
+"A tiny silver bell without a clapper",
+"A mechanical canary inside a gnome-crafted lamp",
+"A tiny chest carved to look like it has numerous feet on the bottom",
+"A dead sprite inside a clear glass bottle",
+"A metal can that has no opening but sounds as if it is filled with liquid, sand, spiders, or broken glass (your choice)",
+"A glass orb filled with water, in which swims a clockwork goldfish",
+"A silver spoon with an M engraved on the handle",
+"A whistle made from gold-colored wood",
+"A dead scarab beetle the size of your hand",
+"Two toy soldiers, one with a missing head",
+"A small box filled with different-sized buttons",
+"A candle that can't be lit",
+"A tiny cage with no door",
+"An old key",
+"An indecipherable treasure map",
+"A hilt from a broken sword",
+"A rabbit's foot",
+"A glass eye",
+"A cameo carved in the likeness of a hideous person",
+"A silver skull the size of a coin",
+"An alabaster mask",
+"A pyramid of sticky black incense that smells very bad",
+"A nightcap that, when worn, gives you pleasant dreams",
+"A single caltrop made from bone",
+"A gold monocle frame without the lens",
+"A 1-inch cube, each side painted a different color",
+"A crystal knob from a door",
+"A small packet filled with pink dust",
+"A fragment of a beautiful song, written as musical notes on two pieces of parchment",
+"A silver teardrop earring made from a real teardrop",
+"The shell of an egg painted with scenes of human misery in disturbing detail",
+"A fan that, when unfolded, shows a sleeping cat",
+"A set of bone pipes",
+"A four-leaf clover pressed inside a book discussing manners and etiquette",
+"A sheet of parchment upon which is drawn a complex mechanical contraption",
+"An ornate scabbard that fits no blade you have found so far",
+"An invitation to a party where a murder happened",
+"A bronze pentacle with an etching of a rat's head in its center",
+"A purple handkerchief embroidered with the name of a powerful archmage",
+"Half of a floorplan for a temple, castle, or some other structure",
+"A bit of folded cloth that, when unfolded, turns into a stylish cap",
+"A receipt of deposit at a bank in a far-flung city",
+"A diary with seven missing pages",
+"An empty silver snuffbox bearing an inscription on the surface that says 'dreams'",
+"An iron holy symbol devoted to an unknown god",
+"A book that tells the story of a legendary hero's rise and fall, with the last chapter missing",
+"A vial of dragon blood",
+"An ancient arrow of elven design",
+"A needle that never bends",
+"An ornate brooch of dwarven design",
+"An empty wine bottle bearing a pretty label that says, 'The Wizard of Wines Winery, Red Dragon Crush, 331422-W'",
+"A mosaic tile with a multicolored, glazed surface",
+"A petrified mouse",
+"A black pirate flag adorned with a dragon's skull and crossbones",
+"A tiny mechanical crab or spider that moves about when it's not being observed",
+"A glass jar containing lard with a label that reads, 'Griffon Grease'",
+"A wooden box with a ceramic bottom that holds a living worm with a head on each end of its body",
+"A metal urn containing the ashes of a hero",
+];
+
+var orc = [
+"Grug", "Bog", "Drog", "Dreg", "Krag", "Grak", "Zag", "Bag", "Krig", 
+"Dag", "Harg", "Mog", "Ug", "Bug", "Ug", "Dug", "Vog", "Mig", "Rog", 
+"Kag", "Og", "Drug", "Vorg", "Mig", "Rig", "Kog", "Ag", "Darg", 
+"Gorm", "Mir", "Kor", "Kug", "Ig", "Dark", "Gorn", "Marn", "Kron", 
+"Gug", "Ak", "Drak", "Grob", "Marg", "Krog", "Gag", "Zog", "Drek", 
+"Dorg", "Mon", "Grag", "Gog", "Zug", "Gar", "Dorn", "Mok", "Morg", 
+"Gig", "Krin", "Gak", "Mag", "Mak"
+];
+
+var orcs1 = [
+"Blood", "Death", "Pain", "Cut", "Shadow", "Gloom", "Dark", "Burning"
+, "Fetid", "Vile", "Wretched", "Sharp", "Dull", "Bleak", "Mighty", 
+"Strong", "Fast", "Stone", "Iron", "Steel", "Grey", "White", "Pale", 
+"Vicious", "Bloody", "Torn", "Broken", "Scarred", "Wasted", "Burned",
+"Charred", "Cracked", "Smashed", "Rage", "Lost", "Dead", "Bleeding",
+"Blue", "Edged", "Rust", "Rot", "Wounded", "Chained", "Forked", 
+"Hurt", "Ripped", "Filthy", "Foul", "Hard", "Grey"
+];
+
+var orcs2 = [
+"axe", "sword", "mace", "club", "wolf", "dragon", "demon", "troll", 
+"slayer", "killer", "wind", "mountain", "crag", "shield", "knife", 
+"blade", "spear", "wood", "tooth", "fang", "claw", "eye", "ear", 
+"hand", "fist", "chain", "heart", "blood", "wound", "scar", "crag", 
+"fire", "fear", "worm", "snake", "rat", "rock", "arrow", "dagger", 
+"face", "wolf", "skin", "fur", "devil", "loot", "eater", "foe", 
+"wrath", "strike", "soul"
+];
+
+var orcs3 = [ "Skull", "Bone", "Axe", "Sword", "Tusk", "Jaw", "Brain", 
+"Eye", "Flesh", "Blood", "Stone", "Steel", "Tree", "Elf", "Dwarf", 
+"Man", ]; 
+
+var orcs4 = [ "breaker", "crusher", "cleaver", "eater", "smasher", 
+"gnawer", "biter", "ripper", "thrasher", ]; 
+
+var greek1 = [
+"Alex", "Antigon", "August", "Calig", "Claud", "Demetr", "Dioclet", 
+"German", "Her", "Jul", "Ner", "Pil", "Tib"
+];
+
+var greek2 = [
+"acles", "andros", "ate", "erius", "ian", "iar", "icus", "ides", 
+"ios", "ius", "os", "ula", "us"
+];
+
+var greek3 = [
+"Aph", "Art", "Ath", "Dem", "Hec", "Her", "Jud", "Maced", "Nik", 
+"Per", "Tab", "Ter", "Tyr"
+];
+
+var greek4 = [
+"atea", "emis", "ena", "etera", "ia", "iana", "icla", "ina", "ithea",
+"omeda", "onia", "osyna", "rodite"
+];
+
+var greeks1 = [
+"Andro", "Augus", "Ca", "Cae", "Cali", "Gal", "Mag", "Me", "Ni", 
+"Per", "Theo", "Tiber", "Xer"
+];
+
+var greeks2 = [
+"cles", "des", "dorus", "gulus", "lus", "mean", "mus", "nes", "sar", 
+"seus", "sion", "ssius", "tus"
+];
+
+var elf1 = [
+"Caladrel", "Heldalel", "Lanliss", "Meirdrarel", "Seldlon", 
+"Talathel", "Variel", "Zordlon"
+];
+
+var elf2 = [
+"Amrunelara", "Dardlara", "Faunra", "Jathal", "Merisiel", "Oparal", 
+"Soumral", "Tessara", "Yalandlara"
+];
+
+var woodelf1 = [
+"An", "Ara", "Ar", "Co", "Elis", "Karo", "Lego", "Li", "Pali", "Ria", "Sil", "Ta"
+];
+
+var woodelf2 = [
+"cher", "dell", "driel", "gan", "gorn", "las", "man", 
+"nis", "nor", "rim", "tan", "van"
+]; 
+
+var woodelf3 = [
+"Cas", "Cyl", "Des", "Lare", "Lego", "Lilis", "Min", "Phy", "Rilli", "Si", "U"
+];
+
+var woodelf4 = [
+"dra", "fina", "gina", "landra", "lerva", "na", "nia", "sa", "sandra", "thia"
+];
+
+var woodelfs1 = [
+"Blue", "Fern", "Forest", "Ivy", "Moss", "Night", "Oak", "Pine", "River", "Shady", "Spring", "Willow"
+];
+
+var woodelfs2 = [
+"brook", "dale", "hollow", "lake", "pool", "run", "shade", "sky", "thorn", "vale", "wind", "wood"
+];
+
+var highelf1 = [
+"Core", "Corri", "Cyre", "Gan", "Kala", "Kelkemme", "Lilland", "Lovi", "Mith", "Saru", "Sau", "Soli"
+];
+
+var highelf2 = [
+"dalf", "las", "lian", "llon", "man", "mon", "nar", "ra", "riil", "ril", "ron", "tar"
+];
+
+var highelf3 = [
+"Andra", "Ca", "Cymba", "Kori", "Lili", "Lora", "Mor", "Psy", "Saur", "Sha", "Valli", "Zeno"
+];
+
+var highelf4 = [
+"ginia", "lia", "lina", "mia", "na", "sara", "sephona", "sha", "tha"
+];
+
+var highelfs1 = [
+"Ad", "Caem", "Elsin", "Gae", "Gray", "High", "Jor", "Lareth", "Silin", "Spell", "Storm", "Throm"
+];
+
+var highelfs2 = [
+"aire", "al", "binder", "ian", "ire", "ius", "lock", "or", "orin", "thar", "us", "watch"
+];
+
+var dwarf1 = [
+"Dolgrin", "Grunyar", "Harsk", "Kazmuk", "Morgrym", "Rogar", "Adrik", 
+"Alberich", "Baern", "Barendd", "Brottor", "Bruenor", "Dain", "Darrak", 
+"Delg", "Eberk", "Einkil", "Fargrim", "Flint", "Gardain", "Harbek", 
+"Kildrak", "Morgran", "Orsik", "Oskar", "Rangrim", "Rurik", "Taklinn", 
+"Thoradin", "Thorin", "Tordek", "Traubon", "Travok", "Ulfgar", "Veit", 
+"Vondal"
+];
+
+var dwarf2 = [
+"Agna", "Bodill", "Ingra", "Kotri", "Rusilka", "Yangrit", "Amber", 
+"Artin", "Audhild", "Bardryn", "Dagnal", "Diesa", "Eldeth", "Falkrunn", 
+"Finellen", "Gunnloda", "Gurdis", "Helja", "Hlin", "Kathra", "Kristryd", 
+"Ilde", "Liftrasa", "Mardred", "Riswynn", "Sannl", "Torbera", "Torgga", 
+"Vistra" 
+];
+
+var dwarves1 = [
+"Ancient", "Battered", "Beaten", "Black", "Black", "Blunt", "Broken",
+"Dark", "Deep", "Dour", "Elder", "Fast", "Fierce", "Forged", 
+"Frowning", "Glum", "Golden", "Grand", "Great", "Grey", "Grim", 
+"Hard", "Heavy", "Huge", "Jagged", "Large", "Lost", "Mad", "Master", 
+"Mighty", "Molten", "Night", "Old", "Proud", "Pure", "Rough", "Sharp"
+, "Sheer", "Silver", "Slow", "Smashed", "Smooth", "Strong", "Tall", 
+"Tough", "True", "Vast", "White", "Wise", "Worn"
+];
+
+var dwarves2 = [
+"ale", "arm", "axe", "beard", "belly", "boulder", "boulder", "brass",
+"bronze", "cave", "cliff", "coal", "coin", "copper", "depths", 
+"diamond", "dragon", "fall", "fire", "fist", "frown", "gem", "gold", 
+"hammer", "head", "helm", "hill", "ice", "iron", "jewel", "laugh", 
+"mithral", "mountain", "nail", "passage", "ore", "pick", "pit", 
+"rock", "ruby", "rune", "silver", "snow", "spike", "steel", "stone", 
+"stone", "sword", "tunnel", "vein",
+];
+
+var bret1 = [
+"Agr", "Alab", "And", "Bed", "Dun", "Edw", "Gond", "Mord", "Per", 
+"Rod", "Theod", "Trist", "Uth"
+];
+
+var bret2 = [
+"ane", "ard", "astyr", "istair", "istyr", "ore", "oryan", "yctor", 
+"yn", "ynak", "yrick", "yval", "ywyr"
+];
+
+var bret3 = [
+"Barb", "Bellad", "Carol", "Chryst", "El", "Elyz", "Evel", "Gwyn", 
+"Lys", "Morg", "Vann", "Vyct", "Ys"
+];
+
+var bret4 = [
+"abyth", "anna", "ara", "ausa", "ayne", "olda", "ona", "orya", "yn", 
+"yna", "yrrya", "yssa", "yvyra"
+];
+
+var brets1 = [
+"Ash", "Bucking", "Copper", "Gaer", "Green", "Hawk", "Hearth", "King"
+, "Master", "Moor", "Wick", "Wood", "Yeom"
+];
+
+var brets2 = [
+"croft", "field", "ford", "ham", "hart", "house", "ing", "sley", 
+"sly", "smith", "ston", "ton", "wing"
+];
+
+var nord1 = [
+"Al", "Asg", "Bj", "Er", "Fenr", "Har", "Ingm", "Jurg", "Kj", "Moj", 
+"Sor", "Torb", "Ulr"
+];
+
+var nord2 = [
+"ald", "an", "ar", "arik", "arke", "arne", "eld", "en", "ens", "er", 
+"ik", "is", "orn"
+];
+
+var nord3 = [
+"An", "Bet", "Dor", "Ell", "Han", "Hell", "Ing", "Jyt", "Kirst", 
+"Met", "Morg", "Sill", "Ull"
+];
+
+var nord4 = [
+"a", "e", "en", "ia", "ina", "ne", "te"
+];
+
+var nords1 = [
+"Al", "Asg", "Bj", "Er", "Fenr", "Har", "Ingm", "Jurg", "Kj", "Moj", 
+"Sor", "Torb", "Ulr"
+];
+
+var nords2 = [
+"ald", "an", "ar", "arik", "arke", "arne", "eld", "en", "ens", "er", 
+"ik", "is", "orn"
+];
+
+var arab1 = [ "Ab'", "Ak'", "Akh'", "Am", "Fa'", "Hus", "Mo", "Moham", 
+"Moj", "Na", "Om", "Sha", "Sin", "Za'", "Zan'" ]; 
+
+var arab2 = [ "ar", "bar", "bil", "der", "dul", "gh", "ir", "kir", 
+"med", "nir", "noud", "sien", "soud", "taba", "tabe", "urabi" ]; 
+
+var arab3 = [ "A", "Azi", "Ela", "Fa", "Kha", "Ki", "Mo", "Na", "Ra", 
+"Ri", "Sa", "Sha", "So", "Ta", "Za" ]; 
+
+var arab4 = [ "ahin", "ahni", "feliz", "hana", "heh", "hrazad", "jjan", 
+"khtar", "nita", "raya", "riba", "shima", "srin", "tima", "zita" ]; 
+
+var arabs1 = [ "A", "Bara", "Hammu", "Ja", "Kha", "Ki", "Mah", "Rai", 
+"Ro", "Sa", "Si", "Sol", "Tavak", "Za" ]; 
+
+var arabs2 = [ "biri", "bus", "davi", "han", "hir", "kar", "manni", 
+"mnin", "nai", "oni", "rabi", "spoor", "stae", "tani", "vandi" ]; 
+
+var hire1 = [
+"Ar", "Arn", "Bal", "Bur", "Col", "Cor", "Dar", "Din-", "Dro", 
+"Fin", "Gul", "Gar", "Ga", "Gax", "Hal", "Hur", "Jak", "Kal", "Kil", 
+"Las", "Ler", "Mar", "Med", "Mul", "Mor", "Nu", "Or", "Pci", "Sa", 
+"Sar", "Sul", "Rad", "Ra", "Ran", "Res", "Ren", "Roth", "Tho", "Tur",
+"Un", "Ul", "Wik", "Wor",
+];
+
+var hire2 = [
+"an","ag","d", "do", "doon","dric","(e)us","ik","firth","ford","g",
+"qash", "g","run","ard","is","x","kin","lar","lo","loc","m", "mox", 
+"mat", "more", "mar", "mak", "m","ore","n","or","nc","rus","son","us"
+,"k", "ner", "sus", "ton","vay","win","wick", "wood", "gar", "go", 
+"grun", "gard", "ix", "um"
+];
+
+var hire3 = [
+"Ar", "A", "An", "Bri", "Brid", "Bra", "Brau", "Bran", "Braun", 
+"Bre", "Bar", "Baro", "E", "El", "Ea", "Fre", "Hal", "He", "Her", 
+"He", "Hem", "E", "Er", "Xe", "Mor", "Me", "Mer", "Rho", "The", 
+"Vale", "Valer", "Var",
+];
+
+var hire4 = [
+"a", "cia", "ga", "ifa", "gild", "na", "ghild", "a", "da", "ra", 
+"ara", "qana", "wyn", "grid", "na", "ena", "ra", "ssa", "dessa", "qa"
+, "ya", "wen", "la", "ala", "ssa", "a", "da"
+];
+
+var hires = [
+"the unkempt", "'Scurvy'", "the vicious", "'Ogre'", "the thug", 
+"'Simple'", "the unwashed", "'Salty'", "the muse", "'Big'", "the red"
+, "'Little'", "the cut-purse", "'Thirsty'", "the needy", "'Honest'", 
+"the drunk", "'Grim'", "the labourer", "'Chatty'", "the geezer", 
+"'Cap'n'", "the hunchback", "'One-Eyed'", "the knave", "'Mad'",    
+"the dense", "'Black'", "the peddler", "'Fast'", "the village idiot", 
+"'Lucky'", "the pauper", "'Yellow'", "the beardless", "'Handsome'", 
+"two-times", "'Killer'", "of (location)"
+];
+
+var tacf = [
+"Gaia", "Lucia", "Marca", "Publia", "Quinta", "Tita", 
+"Tiberia", "Sexta", "Aula", "Decima", "Gnaea", "Spuria", 
+"Mania", "Servia", "Appia", "Numeria", "Vibia",
+];
+
+var tacm = [
+"Gaius", "Lucius", "Marcus", "Publius", "Quintus", "Titus", 
+"Tiberius", "Sextus", "Aulus", "Decimus", "Gnaeus", "Spurius", 
+"Manius", "Servius", "Appius", "Numerius", "Vibius",
+];
+
+var delf1 = [ "Azar", "Cas", "Ereb", "Hel", "Nis", "Shal", "Shur", 
+"Tur", "Ul", "Vanik", "Zan", "Zir" ]; 
+
+var delf2 = [ "ain", "ath", "far", "ien", "ik", "il", "imal", "imar", 
+"kan", "on", "par", "seth" ]; 
+
+var delf3 = [ "Cru", "Dem", "Golg", "Hek", "Lil", "Lol", "Neph", "Shel", 
+"Sher", "Tab", "Vayn", "Verm" ]; 
+
+var delf4 = [ "atah", "elle", "ethys", "iah", "inah", "ith", "ithah", 
+"ivah", "obah", "onah", "othah", "th" ]; 
+
+var delfs1 = [ "Adl", "Aval", "Enak", "Grul", "Helb", "Moab", "R'", 
+"Rall", "R'zam", "Sail", "S'th", "T'riz" ]; 
+
+var delfs2 = [ "ain", "am", "an", "aron", "athil", "bruk", "en", "enar", 
+"is", "on", "one", "ul" ]; 
+
+var gnome = [
+"Carani", "Corydal", "Corynol", "Daerjon", "Dalbun", "Dalkon", "Ellyni", 
+"Errmip", "Errni", "Findo", "Finpest", "Fudkol", "Fudnol", "Fudto", 
+"Gardo", "Garnol", "Gernig", "Hedpen", "Jebrick", "Klemkol", "Lindzig", 
+"Lindto", "Nerman", "Ningel", "Nino", "Nobdal", "Nobni", "Olffle", 
+"Pilnol", "Pilpest", "Punjon", "Ranzwyn", "Roydal", "Royle", "Seekin", 
+"Seenock", "Turmip", "Turnock", "Wayle", "Waynol", "Wimdal", "Wimkol", 
+"Wimwick", "Wayji", "Zooko" 
+];
+
+var gnomes1 = [
+"Bam", "Beren", "Bibble", "Bimp", "Blee", "Boddy", "Bun", "Bunk", 
+"Bussle", "Cara", "Cobb", "Cory", "Dal", "Dimb", "Duva", "Dwob", 
+"Dwoble", "Elto", "Err", "Fol", "Fon", "Gert", "Glim", "Jeb", "Klem", 
+"Lind", "Loop", "Lum", "Mard", "Mibbi", "Mibbit", "Minni", "Mipple", 
+"Moddle", "Nack", "Nackle", "Nockle", "Olff", "Pil", "Pildo", "Punt", 
+"Ranz", "Raul", "Rondle", "Roon", "Shaf", "Turji", "Zoo", "Zoodle", 
+"Way", "Wibble", 
+];
+
+var gnomes2 = [
+"bell", "bert", "bertle", "biddle", "bozle", "boozle", "burdin", 
+"darnt", "foodle", "ger", "jon", "kin", "knottin", "leger", "lenig", 
+"madge", "malkin", "mip", "mottin", "man", "mut", "nig", "nock", "nor", 
+"nottin", "oodle", "pest", "rick", "wick", "wicket", "winkle", "wiss", 
+"wocket", 
+];
+
+var bar1 = [
+"Slippery", "Frozen", "Golden", "Silver", "Grand", "Stout", "Green", 
+"Shining", "Royal", "Purple", "Red", "Blue", "Black", "White", 
+"Whispering", "Brooding", "Dancing", "Ghostly", "Sad", "Marble"
+];
+
+var bar2 = [
+"Eel", "Boar", "Maiden", "Oak", "Unicorn", "Lion", "Dragon", "Bull", 
+"Court", "Goose", "Horse", "Griffin", "Tower", "Knight", "Serpent", 
+"Barrel", "Table", "Stone", "Goat", "King"
+];
+
+var town = [
+"Abingdon", "Accrington", "Acle", "Aylesbury", "Aylsham", "Bacup", 
+"Bakewell", "Banbury", "Bushey", "Bushey", "Caistor", "Callington", 
+"Cullompton", "Dagenham", "Darley Dale", "Dulverton", "Ealing", 
+"Earl Shilton", "Exmouth", "Fairford", "Frome", "Gainsborough", 
+"Guisborough", "Hadleigh", "Hythe", "Ilford", "Ivybridge", "Jarrow", 
+"Keighley", "Knutsford", "Langport", "Lyme Regis", "Macclesfield", 
+"Much Wenlock", "Nailsea", "Nuneaton", "Oakengates", "Oundle", 
+"Paddock Wood", "Pudsey", "Queenborough-in-Sheppey", "Radstock", 
+"Rye", "Saffron Walden", "Syston", "Tadcaster", "Tynemouth", 
+"Uckfield", "Uxbridge", "Ventnor", "Verwood", "Wadebridge", 
+"Wymondham", "Yarm", "Yeovil"
+];
+
+var chineseTown1 = [
+"Bei", "Xi", "He", "Jiang", "Zhong", "Hu", "Qing", "Dong", "Nan", 
+"Li", "Wang", "Liu", "Chen", "Yang", "Zhao", "Huang", "Zhou", "Wu"
+];
+
+var chineseTown2 = [
+"an", "dao", "men", "cheng", "chuan", "du", "lin", "shan", "yang"
+];
+
+var englishTown1 = [
+"Aber", "Ast", "Auch", "Auchen", "Ach", "Auchter", "Bal", "Balla", 
+"Bally", "Ball", "Brad", "Bre", "Caer", "Car", "Cul", "Cwm", "Cum", 
+"Dal", "Din", "Dinas ", "Drum", "Dun", "Dum", "Don", "Doune", "Fin", 
+"Inver", "Inner", "Kil", "Kin", "Kirk", "Knock", "Kyle", "Kyles", 
+"Lan", "Lhan", "Llan", "Lang", "Lin", "Llyn", "Nan", "Nans", "Nant", 
+"Nor", "Pen", "Pit", "Pol", "Point", "Pool", "Porth", "Shep", "Ship",
+"Strath", "Sud", "Sud", "Tre", "Tilly", "Win"
+];
+
+var englishTown2 = [
+"ay", "y", "ey", "bost", "bury", "borough", "brough", "burgh", "by", 
+"cot", "cott", "dale", "dean", "den", "don", "field", "firth", "ham",
+"ing", "keth", "lea", "ley", "leigh", "mouth", "ness", "pool", 
+"port", "stead", "ster", "thwaite", "twatt", "wick", "wich", "wych", 
+"wyke", "worth", "worthy", "wardine"
+];
+
+var gems = [
+"banded agate", "eye agate", "moss agate", "azurite", "blue quartz", 
+"hematite", "lapis lazuli", "malachite", "obsidian", "rhodochrosite",
+"tiger eye turquoise", "freshwater pearl", "bloodstone", "carnelian"
+, "chalcedony", "chysoprase", "citrine", "iolite", "jasper", 
+"moonstone", "onyx", "peridot", "rock crystal/clear quartz", "sard", 
+"sardonyx", "rose quartz", "smoky quartz", "star rose quartz", 
+"zircon", "amber", "amethyst", "chrysoberyl", "coral", "red garnet", 
+"brown-green garnet", "jade", "white pearl", "golden pearl", 
+"pink pearl", "silver pearl", "red spinel", "red-brown spinel", 
+"deep green spinel", "tourmaline", "alexandrite", "aquamarine", 
+"violet garnet", "black pearl", "deep blue spinel", "golden yellow topaz", 
+"emerald", "white opal", "black opal", "fire opal", "blue sapphire", 
+"fiery yellow corundum", "rich purple corundum", "blue star sapphire"
+, "black star sapphire", "star ruby", "clearest bright green emerald"
+, "blue-white diamond", "canary diamond", "pink diamond", 
+"brown diamond", "blue diamond", "jacinth"
+];
+
+var art = [
+"silver ewer", "carved bone or ivory statuette", 
+"finely wrought small gold bracelet", "cloth of gold vestments", 
+"black velvet mask with numerous citrines", "silver chalice with lapis lazuli gems", 
+"large well-done wool tapestry", "brass mug with jade inlays", 
+"silver comb with moonstones", 
+"silver-plated steel longsword with jet jewel in hilt", 
+"carved harp of exotic wood with ivory inlay and zircon gems", "solid gold idol (10 lb.)", 
+"gold dragon comb with red garnet eye", "gold and topaz bottle stopper cork", 
+"ceremonial electrum dagger with a star ruby in the pommel", 
+"eyepatch with mock eye of sapphire and moonstone", 
+"fire opal pendant on a fine gold chain", "old masterpiece painting", 
+"embroidered silk and velvet mantle with numerous moonstones", "sapphire pendant on gold chain", 
+"embroidered and bejeweled glove", "jeweled anklet", "gold music box"
+, "Golden circlet with four aquamarines", 
+"a string of small pink pearls (necklace)", "Jeweled gold crown", "jeweled electrum ring", 
+"Gold and ruby ring", "gold cup set with emeralds"
+];
+
+var traps = new Array(6);
+traps[0] = ["Pit", "Pit, Spike", "Pit, Spike (Rusty)", "Pit, Spike (Poison)", "Pit, Spike (Barbs)", "Pit, Acid"];
+traps[1] = ["Ranged, Arrow", "Ranged, Bolt", "Ranged, Dart", "Ranged, Javelin", "Ranged, Spear", "Ranged, Stone", "Ranged, Acid", "Ranged, Burning Coals"];
+traps[2] = ["Melee, Descending Blade", "Melee, Crushing Block", "Melee, Pendulum (ball)","Melee, Pendulum (log)", "Melee, Pendulum (axe)", "Melee, Pendulum (scythe)", "Melee, Spear Thrust", "Melee, Blade Slash"];
+traps[3] = ["Acid Arrow", "Burning Hands", "Cone of Cold", "Lightning Bolt", "Fireball", "Silence", "Stinking Cloud", "Curse", "Chain Lightning", "Inflict Wounds", "Magic Missile", "Flame Strike", "Power Word Kill", "Prismatic Spray", "Cause Disease", "Summon Monster", "Phantasmal Killer", "Wall of Fire", "Web", "Sleep", "Explosive Runes", "Spell, Alarm"];
+traps[4] = ["Spray, Slime", "Spray, Shrapnel", "Spray, Cold", "Spray, Acid", "Spray, Boiling Water", "Spray, Flaming Oil", "Spray, Sewage", "Spray, Mummy Dust", "Spray, Poison", "Spray, Dust of Sneezing and Choking", "Spray, Fire", "Spray, Stinking Cloud", "Spray, Smoke", "Spray, Methane", "Spray, Freezing Water", "Spray, Sand", "Spray, Steam", "Spray, Sulphur"];
+traps[5] = ["Bear Trap", "Caltrops", "Greasy Oil", "Cage", "Ball Bearings", "Monster", "Darkness", "Slope/Slide", "Shifting Room", "Teleporter"]
+//END DATA
+
+function RndText() {
+    npcTraits();
+    dungeonStock();
+    dungeon();
+    //gmEmulator();
+    placeName();
+    npcNames();
+	buildDungeon(10);
+}
+
+function about() {
+alert("Made by Roberto Kingsley (oshojabbe@gmail.com). Click asterisks to see inspiration for an item. Version 1.4");
+}
+
+function npcTraits() {
+    //Character Traits
+    setElem('ps1' , physicalQuirks1);
+    setElem('ps2' , physicalQuirks2);
+    setElem('prs1' , personalityQuirks1);
+    setElem('prs2' , personalityQuirks2);
+	setElem('srole', socialrole);
+    //setElem('prs' ,personality);
+    setElem('mot' , motivation);
+    setElem('ski' , skill);
+	
+	if (Math.random() * 2 <= 1) {
+		pers1 = getRand(personality);
+		pers2 = getRand(personality);
+		if (pers1 == pers2) {
+			setElem('prs' ,personality);
+		} else {
+			 document.getElementById('prs').innerHTML = pers1 + " and " + pers2;
+		}
+	} else {
+		setElem('prs' ,personality);
+	}
+	
+    
+    //Pickpocketing
+    document.getElementById('pp1').innerHTML = getRand(dSix);
+    document.getElementById('pp2').innerHTML = getRand(pickpocket);
+};
+
+function dungeon() {
+    //Dungeon Stocking (Monsters, Tricks, Traps, Treasures)
+    var stocking1 = getRand(dungeonStocking1);
+    var treas;
+
+    document.getElementById('ds1').innerHTML = stocking1;
+	
+	//Room Type
+	setElem('rtype', roomtype);
+	
+    //Trick
+    setElem('ds4', trick1);
+	
+	trck1 = getRand(trick2);
+	if (trck1 == "part missing") {
+		trck2 = getRand(trick2);
+		while (trck1 == trck2) {
+			trck2 = getRand(trick2);
+		}
+		if (trck2 == "part missing, upon replacement destroys a possession" || trck2 == "part missing, upon replacement serves for 1d20 days") {
+			trck1 = trck2;
+		} else {
+			trck1 = trck1 + ", when replaced " + trck2;
+		}
+	}
+	
+	if (trck1.indexOf("part missing") != -1) {
+		document.getElementById('ds5').innerHTML = " with a " + trck1;
+	} else {
+		document.getElementById('ds5').innerHTML = " that " + trck1;
+	}
+    
+    treas = getRand(treasure);
+    if (treas == "Gems") {
+        treas = getRand(gems);
+        treas = "Gem (" + treas + ")";
+    } else if (treas == "Art") {
+        treas = getRand(art);
+        treas = "Art (" + treas + ")";
+    } else if (treas == "Coins") {
+        treas = "Coins (" + getRand(["Gold", "Electrum", "Silver", "Copper"]) + ")";
+    } else {
+        treas = getRand(altTreasure);
+        treas = "Alternative (" + treas + ")";
+    }
+    document.getElementById('ds6').innerHTML = treas; 
+};
+
+function dungeonStock() {
+    //Five Room Dungeon
+    setElem('fr1' , fvroomEntrance);
+    setElem('fr2' , fvroomPuzzle);
+
+	
+	if (Math.random() * 10 < 8) {
+	    setElem('fr4' , fvroomClimax);
+	} else {
+	    document.getElementById('fr4').innerHTML = getRand(fvroomClimax) + " and " + getRand(fvroomClimax); 
+	}
+	
+    setbck = ["Trick (" + getRand(trick1) + ", " + getRand(trick2) + ")", "Trap (" + getRand(getRand(traps)) + ")", "Trap (" + getRand(getRand(traps)) + ")"];
+	setElem('fr3' , setbck);
+	
+	treas = getRand(treasure);
+    if (treas == "Gems") {
+        treas = getRand(gems);
+        treas = "Gem (" + treas + ")";
+    } else if (treas == "Art") {
+        treas = getRand(art);
+        treas = "Art (" + treas + ")";
+    } else if (treas == "Coins") {
+        treas = "Coins (" + getRand(["Gold", "Electrum", "Silver", "Copper"]) + ")";
+    } else {
+        treas = getRand(altTreasure);
+        treas = "Alternative (" + treas + ")";
+    }
+	trtw = ["Twist (" + getRand(twist1) + " " + getRand(twist2) + ")", treas];
+    document.getElementById('fr5').innerHTML = getRand(trtw); 
+    
+    //Adventure Goal
+    setElem('gl' , goal);
+	setElem('sq' , sideq);
+    
+    //Mini-Adventure, Based on Scrolls and Swords
+    setElem('ss1' , advThreat);
+    setElem('ss2' , advWants);
+    setElem('ss3' , advTarget);
+    setElem('ss4' , advAccomplish);
+	
+	//World-Shattering Event
+	setElem('wshat', worldshattering);
+};
+
+function gmEmulator() {
+    //GM Emulator
+    var twister1 = getRand(twist0);
+    var twister2;
+    var twister3;
+    if (twister1 == "Yes.") {
+        twister2 = getRand(twist1);
+        twister3 = getRand(twist2);
+    } else {
+        twister2 = "";
+        twister3 = "";
+    }
+    
+    setElem('gm1' , gmEm);
+    document.getElementById('gm2').innerHTML = twister1;    
+    document.getElementById('gmt1').innerHTML = twister2;
+    document.getElementById('gmt2').innerHTML = twister3;
+    setElem('gms' , scene);
+};
+
+function npcNames() {
+    //Orc Names
+	document.getElementById('orcForename').innerHTML = getRand(orc) + getRand(orc).toLowerCase();
+	document.getElementById('orcSurname').innerHTML = getRand([getRand(orcs1)+getRand(orcs2),getRand(orcs3)+getRand(orcs4)]);
+    
+    //Elven Names
+    var tempelfM = ["", "", ""];
+    tempelfM[0] = getRand(elf1);
+    tempelfM[1] = getRand(woodelf1) + getRand(woodelf2);
+	tempelfM[2] = getRand(highelf1) + getRand(highelf2);
+    var tempelfF = ["", "", ""];
+    tempelfF[0] = getRand(elf2);
+    tempelfF[1] = getRand(woodelf3) + getRand(woodelf4);
+	tempelfF[2] = getRand(highelf3) + getRand(highelf4);
+	var tempelfS = ["", ""];
+	tempelfS[0] = getRand(highelfs1) + getRand(highelfs2);
+    tempelfS[1] = getRand(woodelfs1) + getRand(woodelfs2);
+    document.getElementById('elf1').innerHTML = getRand(tempelfM);
+    document.getElementById('elf2').innerHTML = getRand(tempelfF);
+    document.getElementById('elf3').innerHTML = getRand(tempelfS);
+
+    //Simple Dwarven Names
+	dwarven2 = getRand(dwarves1) + getRand(dwarves2);
+    dwarven3 = getRand(["Mac" + dwarven2, dwarven2, getRand(dwarf1) + "son"]);
+    
+    document.getElementById('sdwa').innerHTML = getRand(dwarf1) + "/" + getRand(dwarf2) + " " + dwarven3;
+	
+	//Gnomish Names
+	gnof = getRand(gnome);
+	if (gnof[gnof.length-1] == "e" | gnof[gnof.length-1] == "i" | gnof[gnof.length-1] == "o" | gnof[gnof.length-1] == "u") {
+		gnof = rep(gnof,gnof.length-1,"a");
+	} else {
+		gnof = gnof + "a";
+	}
+    document.getElementById('gno').innerHTML = getRand(gnome) + "/" + gnof + " " + getRand(gnomes1) + getRand(gnomes2);
+    
+    //Breton Names
+    document.getElementById('bre1').innerHTML = getRand(bret1) + getRand(bret2) + "/" + getRand(bret3) + getRand(bret4) + " " + getRand(brets1) + getRand(brets2);
+    
+    //Nord Names
+    document.getElementById('nor1').innerHTML = getRand(nord1) + getRand(nord2) + "/" + getRand(nord3) + getRand(nord4) + " " + getRand(nords1) + getRand(nords2) + "sen";
+    
+    //Moorish Names
+    document.getElementById('red1').innerHTML = getRand(arab1) + getRand(arab2) + "/" + getRand(arab3) + getRand(arab4) + getRand([" ", " ibn-", " al-"]) + getRand(arabs1) + getRand(arabs2);
+    
+    //Fantasy Names
+	document.getElementById('hir1').innerHTML = getRand([getRand(hire1) + getRand(hire2), getRand(tacm)]);
+	document.getElementById('hir3').innerHTML = getRand([getRand(hire3) + getRand(hire4), getRand(tacf)]);
+	
+	surfan = getRand(hires)
+	
+	if(surfan.search("the") != -1 | surfan.search("times") != -1 | surfan.search("of ") != -1) {
+	    document.getElementById('hir5').innerHTML = surfan;
+		document.getElementById('hirA').innerHTML = "";
+    } else {
+	    document.getElementById('hirA').innerHTML = surfan + " ";
+	    document.getElementById('hir5').innerHTML = "";
+	}
+    
+    //Greek Names
+    document.getElementById('gre1').innerHTML = getRand(greek1) + getRand(greek2) + "/" + getRand(greek3) + getRand(greek4) + " " + getRand(greeks1) + getRand(greeks2);
+	
+	//Dark Elf Names
+    document.getElementById('delfy').innerHTML = getRand(delf1) + getRand(delf2) + "/" + getRand(delf3) + getRand(delf4) + " " + getRand(delfs1) + getRand(delfs2);
+};
+
+function placeName() {
+    //Tavern Names
+    document.getElementById('bar1').innerHTML = getRand(bar1) + " " + getRand(bar2);
+    
+    //Town Names
+    temptown = ["", ""];
+    temptown[0] = getRand(town);
+    temptown[1] = getRand(englishTown1) + getRand(englishTown2);
+    
+    setElem('town1' , temptown);
+    setElem('town2' , chineseTown1);
+    setElem('town3' , chineseTown2);
+	
+	//Town Layout
+	dice = Math.round(Math.random() * 5);
+	document.building.src = path[dice];
+	
+	//Town Resources
+	numres = getRand(resources);
+	document.getElementById('reso').innerHTML = numres;
+	if (numres == "1") {
+		document.getElementById('resot').innerHTML = getRand(restype);
+	} else if (numres == "2") {
+		document.getElementById('resot').innerHTML = getRand(restype) + ", " + getRand(restype);
+	} else if (numres == "3") {
+		document.getElementById('resot').innerHTML = getRand(restype) + ", " + getRand(restype) + ", " + getRand(restype);
+	} else if (numres == "4") {
+		document.getElementById('resot').innerHTML = getRand(restype) + ", " + getRand(restype) + ", " + getRand(restype) + ", " + getRand(restype);
+	}
+	
+	//Recent Events
+	setElem('recev' , recev);
+};
+
+function getRand(inArray) {
+    return inArray[Math.round(Math.random() * (inArray.length - 1))]
+}
+
+function setElem(inID, inArray) {
+	if (document.getElementById(inID).innerHTML != null) {
+	    document.getElementById(inID).innerHTML = getRand(inArray);
+	}
+}
+
+function monGen() {
+    var challenge = document.getElementById("cr");
+    challenge = challenge.options[challenge.selectedIndex].text;
+    challenge = parseInt(challenge);
+    var damage;
+    
+    if (challenge>15) {
+        damage=5;
+    } else if (challenge>10) {
+        damage=4;
+    } else if (challenge>5) {
+        damage=3;
+    } else {
+        damage=2;
+    }
+    
+    document.getElementById("hp").value=monsterTuple[challenge][0];
+    document.getElementById("feats").value=Math.floor(challenge/2);
+    document.getElementById("saves").value=monsterTuple[challenge][8];
+    document.getElementById("ac").value=monsterTuple[challenge][1];
+    document.getElementById("atk").value=monsterTuple[challenge][2];
+    document.getElementById("weapon").value=damage;
+    document.getElementById("dc").value=monsterTuple[challenge][6];
+}
+
+function rep(str,index,chr) {
+    if(index > str.length-1) return str;
+    return str.substr(0,index) + chr + str.substr(index+1);
+}
+
+function clearCanvas(context, canvas) {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  var w = canvas.width;
+  canvas.width = 1;
+  canvas.width = w;
+}
+
+function drawMap() {
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+	clearCanvas(ctx, c);
+    //ctx.fillStyle = "#FF0000";
+    //ctx.fillRect(0,0,150,75);
+
+    for (i =0; i <roomdata.length; i++) {
+        ctx.fillStyle = "#00000";
+        ctx.fillRect(roomdata[i][0]-5,roomdata[i][1]-5,10,10)
+
+        ctx.font="16px Georgia";
+        ctx.fillText(i.toString(),roomdata[i][0]+5,roomdata[i][1]-5);
+
+        //document.getElementById('erro').innerHTML = "P1";
+
+        for(j = 0; j < roomdata[i][2]; j++) {
+            try {
+                ctx.strokeStyle = colour[j];
+                ctx.beginPath();
+                ctx.moveTo(roomdata[i][0], roomdata[i][1]);
+                r1 = neighboring[i][j];
+                ctx.lineTo(roomdata[r1][0], roomdata[i][1]);
+                ctx.lineTo(roomdata[r1][0], roomdata[r1][1]);
+                ctx.strokeStyle = colour[j];
+                ctx.stroke();
+            } catch (err) {
+                //document.getElementById('erro').innerHTML = err;
+                //document.getElementById('erro2').innerHTML = r1;
+            }
+        }
+
+        //document.getElementById('erro').innerHTML = "P2";
+    }
+}
+
+function offsetRooms(offset) {
+	for (i=0; i < roomdata.length; i++) {
+		roomdata[i][0] = roomdata[i][0] + offset;
+		roomdata[i][1] = roomdata[i][1] + offset;
+	}
+}
+
+function findNeighbors() {
+    for (i =0; i <10; i++) {
+        neighboring[i] = new Array(4);
+        neighbordist[i] = new Array(2);
+        neighbordist[i][0] = 1000;
+        neighbordist[i][1] = 0;
+    }
+
+    for (i=0; i<roomdata.length; i++) {
+        for (j=0; j<roomdata.length; j++) {
+            if (i != j) {
+                distanceSq = (roomdata[i][0] - roomdata[j][0]) * (roomdata[i][0] - roomdata[j][0]) + (roomdata[i][1] - roomdata[j][1]) * (roomdata[i][1] - roomdata[j][1]);
+                neighbordist[j][0] = distanceSq;
+                neighbordist[j][1] = j;
+            }
+        }
+
+        neighbordist = neighbordist.sort(function(a,b) { return a[0] > b[0]; });
+
+        for (k = 0; k < 4; k++) {
+            neighboring[i][k] = neighbordist[k][1];
+        }
+    }
+}
+
+function buildDungeon(rooms) {
+	roomdata = new Array(10);
+	neighboring = new Array(10);
+	neighbordist = new Array(10);
+    for (i =0; i <10; i++) {
+        roomdata[i] = new Array(4);
+    }
+
+    for (i=0; i < rooms; i++) {
+        ranx = Math.round(Math.random() * 290);
+        rany = Math.round(Math.random() * 290);
+        exits = Math.round(Math.random() * 3);
+        contents = getRand(dungeonStocking1);
+        roomdata[i][0] = ranx;
+        roomdata[i][1] = rany;
+        roomdata[i][2] = exits+1;
+        roomdata[i][3] = contents;
+    }
+
+    //document.getElementById('loc').innerHTML = roomdata[0][0];
+    //document.getElementById('ex').innerHTML = roomdata[0][1];
+    //document.getElementById('cont').innerHTML = roomdata[0][2];
+    //document.getElementById('size').innerHTML = rooms;
+
+    findNeighbors();
+	offsetRooms(10);
+    drawMap();
+}
+
+onload = function() { RndText(); }
+
+</script>
+</head>
+<body>
+
+<div style="height:30px;width:100%">
+<button onclick="RndText()"><b>Reroll All</b></button>
+<button onclick="placeName()">Reroll Town</button>
+<button onclick="dungeonStock()">Reroll Adventures</button>
+<button onclick="dungeon()">Reroll Dungeon Stock</button>
+<button onclick="buildDungeon(10)">Reroll Dungeon Map</button>
+<button onclick="npcNames()">Reroll Names</button>
+<button onclick="npcTraits()">Reroll Traits</button>
+<button onclick="about()"><b>About</b></button>
+<button onclick="window.location.href='http://dmtools.tumblr.com/old13'">Click for Old Version (1.3)</button>
+</div>
+
+<div style="width:30%;float:left;">
+<h2>Town</h2>
+<p>
+<table align="right">
+<tr><td><img name="building" src="https://40.media.tumblr.com/70d51a6f89b4dfd2545be9834ba8e55c/tumblr_noxklvjP0K1tarntro1_250.png" /></td></tr>
+<tr><td><b>Floor Layout</b></td></tr>
+<tr><td><img src="https://41.media.tumblr.com/cbb3c2e203d64e3a09737116909ce999/tumblr_noys7g0p0w1r2hf3ao1_100.png" /></td></tr>
+</table>
+</p>
+
+<p><b>Tavern Name:</b> The <a id="bar1"></a></p>
+
+<p>
+<b>Town Name (English):</b> <a id="town1"></a><br>
+<b>Town Name (Chinese):</b> <a id="town2"></a><a id="town3"></a>
+</p>
+
+<p>
+<b>Resources</b> (<a id="reso"></a>): <a id="resot"></a> <br>
+<b>Recent Events:</b> <a id="recev"></a>
+</p>
+
+<h2>Adventure</h2>
+<p><b>Random Adventure</b>:
+<a id="ss1"></a> <a id="ss2"></a> <a id="ss3"></a> <a id="ss4"></a></p>
+
+<p><b>Encounter/Adventure Goal:</b> <a id="gl"></a> <br>
+<b>Side Quest:</b> <a id="sq"></a><br>
+<b>World-Shattering Event:</b> <a id="wshat"></a></p>
+
+<span style="float:right;">
+<b>5 Room Dungeon</b><br>
+<p>1. Entrance: <a id="fr1"></a></p>
+<p>2. Puzzle or RP Challenge: <a id="fr2"></a></p>
+<p>3. Trick or Setback: <a id="fr3"></a></p>
+<p>4. Climax/Boss: <a id="fr4"></a></p>
+<p>5. Reward, Plot Twist: <a id="fr5"></a></p>
+</div>
+
+<div style="background-color:#EEEEEE;width:30%;height:95%;float:left;">
+<h2>Dungeon</h2>
+<canvas id="myCanvas" width="310" height="310" style="border:1px solid #c3c3c3;">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+<img src="https://41.media.tumblr.com/f9172822170fd7b741ff97fbb94f6b6a/tumblr_noypmrKUfZ1r2hf3ao1_250.png" />
+
+<br>
+<b>Dungeon Stocking</b>
+<p><i>Contents:</i> <a id="ds1"></a><br><br>
+<b>Trick:</b> <a id="ds4"></a> <a id="ds5"></a><br>
+<b>Treasure (300 gp/CR or 25 gp/syllable):</b> <a id="ds6"></a><br>
+<b>Room type:</b> room of <a id="rtype"></a></p>
+</div>
+
+<div style="width:30%;float:left;">
+<h2>NPC's</h2>
+<b>Name (M/F)</b>
+<p>
+<i>Fantasy:</i> <a id="hirA"></a><a id="hir1"></a>/<a id="hir3"></a> <a id="hir5"></a><br>
+<i>English:</i> <a id="bre1"></a><br>
+<i>Viking:</i> <a id="nor1"></a><br>
+<i>Moorish:</i> <a id="red1"></a><br>
+<i>Hellenistic:</i> <a id="gre1"></a><br>
+<i>Dwarven:</i> <a id="sdwa"></a><br>
+<i>Gnomish:</i> <a id="gno"></a><br>
+<i>Elven:</i> <a id="elf1"></a>/<a id="elf2"></a> <a id="elf3"></a><br>
+<i>Orcish:</i> <a id="orcForename"></a> <a id="orcSurname"></a><br>
+<i>Dark Elf:</i> <a id="delfy"></a><br>
+</p>
+
+<p><b>Personality</b>: <a id="prs"></a><br>
+<b>Motivation</b>: <a id="mot"></a><br>
+<b>Area of Expertise</b>: <a id="ski"></a><br>
+<b>Social Role</b>: <a id="srole"></a><br>
+<b>Physical Quirk</b>: <a id="ps1"></a> <a id="ps2"></a><br>
+<b>Personality Quirks</b>: <a id="prs1"></a> <a id="prs2"></a><br><br>
+<b>Pickpocket Loot</b><br>
+<ul>
+<li><a id="pp1"></a> gp</li>
+<li>house keys</li>
+<li>a knife</li>
+<li>tools necessary for work</li>
+<li><a id="pp2"></a></li>
+</ul>
+</p>
+</div>
+</body>
+
+</html>

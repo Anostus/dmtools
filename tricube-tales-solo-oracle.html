@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tricube Tales Solo Oracle Roller</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--parchment:#f4e8d1;--parchment-dark:#e8d5b4;--ink:#2c1810;--ink-light:#5a3a28;
+--accent:#8b4513;--accent-glow:#c97b3a;--gold:#d4a843;--gold-dim:#a07830;
+--section-bg:rgba(44,24,16,0.04);--border:#c4a87a;--shadow:rgba(44,24,16,0.15);
+--red:#9b2226;--green:#2d5016;
+}
+html{scroll-behavior:smooth}
+body{
+font-family:'Crimson Text',Georgia,serif;background:var(--parchment);color:var(--ink);
+line-height:1.5;min-height:100vh;
+background-image:
+  radial-gradient(ellipse at 20% 50%,rgba(196,168,122,0.3) 0%,transparent 50%),
+  radial-gradient(ellipse at 80% 20%,rgba(139,69,19,0.08) 0%,transparent 40%),
+  radial-gradient(ellipse at 50% 100%,rgba(212,168,67,0.1) 0%,transparent 30%);
+}
+header{
+text-align:center;padding:2.5rem 1rem 1.5rem;
+border-bottom:3px double var(--border);margin-bottom:1.5rem;
+background:linear-gradient(180deg,rgba(139,69,19,0.06) 0%,transparent 100%);
+}
+header h1{
+font-family:'Cinzel Decorative',serif;font-size:clamp(1.6rem,4.5vw,2.8rem);
+color:var(--accent);text-shadow:1px 1px 0 var(--gold-dim);
+letter-spacing:0.05em;margin-bottom:0.3rem;
+}
+header p{font-size:1.05rem;color:var(--ink-light);font-style:italic;margin-bottom:1rem}
+.roll-all-btn{
+font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;
+background:linear-gradient(135deg,var(--accent),#6b3410);color:var(--parchment);
+border:2px solid var(--gold);padding:0.7rem 2rem;border-radius:6px;cursor:pointer;
+letter-spacing:0.08em;text-transform:uppercase;
+box-shadow:0 3px 10px var(--shadow),inset 0 1px 0 rgba(255,255,255,0.15);
+transition:all 0.2s;
+}
+.roll-all-btn:hover{transform:translateY(-1px);box-shadow:0 5px 15px var(--shadow);background:linear-gradient(135deg,#a0571a,var(--accent))}
+.roll-all-btn:active{transform:translateY(0)}
+
+.container{max-width:1100px;margin:0 auto;padding:0 1rem 3rem}
+
+.section{
+background:var(--section-bg);border:1px solid var(--border);border-radius:8px;
+margin-bottom:1.5rem;overflow:hidden;
+box-shadow:0 2px 8px rgba(44,24,16,0.08);
+}
+.section-header{
+display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;
+padding:0.8rem 1.2rem;
+background:linear-gradient(135deg,rgba(139,69,19,0.1),rgba(196,168,122,0.2));
+border-bottom:1px solid var(--border);cursor:pointer;user-select:none;
+}
+.section-header h2{
+font-family:'Cinzel Decorative',serif;font-size:clamp(1rem,2.5vw,1.35rem);
+color:var(--accent);letter-spacing:0.04em;
+}
+.section-header .toggle{font-size:1.2rem;color:var(--ink-light);transition:transform 0.3s}
+.section-header .toggle.collapsed{transform:rotate(-90deg)}
+.section-actions{display:flex;gap:0.5rem;align-items:center}
+.reroll-btn{
+font-family:'Cinzel',serif;font-size:0.75rem;font-weight:600;
+background:var(--parchment);color:var(--accent);
+border:1.5px solid var(--accent);padding:0.3rem 0.8rem;border-radius:4px;
+cursor:pointer;text-transform:uppercase;letter-spacing:0.06em;
+transition:all 0.15s;
+}
+.reroll-btn:hover{background:var(--accent);color:var(--parchment)}
+
+.section-body{padding:1rem 1.2rem;transition:max-height 0.4s ease}
+.section-body.hidden{display:none}
+
+.oracle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+
+.oracle-card{
+background:var(--parchment);border:1px solid rgba(196,168,122,0.6);
+border-radius:6px;padding:0.8rem 1rem;position:relative;
+box-shadow:inset 0 0 12px rgba(139,69,19,0.04);
+transition:box-shadow 0.2s;
+}
+.oracle-card:hover{box-shadow:0 2px 8px rgba(139,69,19,0.12)}
+.oracle-card h3{
+font-family:'Cinzel',serif;font-size:0.85rem;font-weight:700;
+color:var(--ink-light);text-transform:uppercase;letter-spacing:0.06em;
+margin-bottom:0.4rem;
+border-bottom:1px dotted var(--border);padding-bottom:0.25rem;
+}
+.oracle-result{
+font-size:1.15rem;color:var(--ink);font-weight:600;min-height:1.6em;
+transition:opacity 0.15s;
+}
+.oracle-result .dice{
+font-size:0.8rem;color:var(--ink-light);font-weight:400;font-style:italic;margin-left:0.3rem;
+}
+.oracle-result .yes{color:var(--green)}
+.oracle-result .no{color:var(--red)}
+.oracle-result.rolling{animation:pulse 0.3s ease 2}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.oracle-card .mini-reroll{
+position:absolute;top:0.5rem;right:0.6rem;background:none;border:none;
+cursor:pointer;font-size:1rem;color:var(--ink-light);opacity:0.4;transition:opacity 0.15s;
+}
+.oracle-card .mini-reroll:hover{opacity:1}
+
+/* ── Settings controls ── */
+.oracle-settings{
+margin:0.4rem 0 0.5rem;display:flex;flex-wrap:wrap;gap:0.35rem 0.6rem;align-items:center;
+}
+.oracle-settings label{
+font-size:0.78rem;color:var(--ink-light);font-weight:400;font-style:italic;
+cursor:pointer;display:flex;align-items:center;gap:0.25rem;
+}
+.oracle-settings select,
+.oracle-settings input[type="checkbox"]{
+font-family:'Crimson Text',serif;font-size:0.8rem;
+background:var(--parchment-dark);color:var(--ink);
+border:1px solid var(--border);border-radius:3px;padding:0.15rem 0.3rem;
+cursor:pointer;
+}
+.oracle-settings select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.oracle-settings input[type="checkbox"]{
+width:14px;height:14px;accent-color:var(--accent);
+}
+.oracle-settings .setting-group{
+display:flex;align-items:center;gap:0.25rem;
+}
+.oracle-settings .pill-group{
+display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;
+}
+.oracle-settings .pill{
+font-family:'Crimson Text',serif;font-size:0.75rem;
+padding:0.15rem 0.5rem;cursor:pointer;
+background:var(--parchment-dark);color:var(--ink-light);
+border:none;border-right:1px solid var(--border);
+transition:all 0.15s;
+}
+.oracle-settings .pill:last-child{border-right:none}
+.oracle-settings .pill.active{
+background:var(--accent);color:var(--parchment);font-weight:600;
+}
+
+/* Card suit colors */
+.suit-red{color:var(--red)}
+.suit-black{color:var(--ink)}
+
+footer{
+text-align:center;padding:1.5rem;color:var(--ink-light);font-size:0.85rem;
+border-top:2px solid var(--border);margin-top:1rem;font-style:italic;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Tricube Tales Solo Oracles</h1>
+<p>All random tables from the Solo Rules supplement</p>
+<button class="roll-all-btn" onclick="rollAll()">Roll All Oracles</button>
+</header>
+
+<div class="container" id="app"></div>
+
+<footer>
+Based on <em>Tricube Tales: Solo Rules</em> by Richard Woolcock. This is a fan-made digital tool.
+</footer>
+
+<script>
+// ── HELPERS ──
+const D6 = ()=> Math.floor(Math.random()*6)+1;
+const PICK = a => a[Math.floor(Math.random()*a.length)];
+function roll6x6(table){ return table[(D6()-1)*6 + (D6()-1)]; }
+function rollD6(table){ return table[D6()-1]; }
+
+function getSetting(id, fallback){
+  const el = document.getElementById('setting-'+id);
+  if(!el) return fallback;
+  if(el.type==='checkbox') return el.checked;
+  return el.value;
+}
+function getPill(groupId, fallback){
+  const btns = document.querySelectorAll('#pillgroup-'+groupId+' .pill');
+  for(const b of btns) if(b.classList.contains('active')) return b.dataset.value;
+  return fallback;
+}
+
+// ══════════════════════════════════
+// ── ORACLE DATA & ROLLERS ──
+// ══════════════════════════════════
+
+// ── SIMPLE QUESTIONS ──
+const LIKELIHOOD_MAP = {
+  verylikely:{label:"Very Likely",target:2},
+  likely:{label:"Likely",target:3},
+  maybe:{label:"Maybe",target:4},
+  unlikely:{label:"Unlikely",target:5},
+  veryunlikely:{label:"Very Unlikely",target:6},
+};
+function rollSimpleQuestion(){
+  const lk = getSetting('likelihood','maybe');
+  const info = LIKELIHOOD_MAP[lk];
+  const r = D6();
+  const yes = r >= info.target;
+  const cls = yes ? 'yes' : 'no';
+  return '<span class="'+cls+'">'+(yes?"YES":"NO")+'</span> <span class="dice">['+info.label+' '+info.target+'+, rolled '+r+']</span>';
+}
+function rollCaveat(){
+  const r = D6();
+  if(r<=2) return 'BUT... <span class="dice">[rolled '+r+']</span>';
+  if(r>=5) return 'AND... <span class="dice">[rolled '+r+']</span>';
+  return '(no caveat) <span class="dice">[rolled '+r+']</span>';
+}
+function rollScaled(){
+  const mode = getPill('scaled-weight','normal');
+  let rolls, result;
+  if(mode==='normal'){
+    result = D6(); rolls = [result];
+  } else {
+    const n = mode==='2dice' ? 2 : 3;
+    rolls = Array.from({length:n},()=>D6());
+    const useHigh = getSetting('scaled-hilo','high')==='high';
+    result = useHigh ? Math.max(...rolls) : Math.min(...rolls);
+  }
+  const diceInfo = mode==='normal' ? '1d6' : rolls.length+'d6 '+(getSetting('scaled-hilo','high')==='high'?'highest':'lowest');
+  return result+' / 6 <span class="dice">['+diceInfo+': '+rolls.join(', ')+']</span>';
+}
+
+// ── COMPLEX QUESTIONS ──
+const COMPLEX_ANSWER = [
+"Abandonment","Advice","Agreement","Arrival","Assistance","Attainment",
+"Barrier","Betrayal","Communication","Concealment","Conflict","Control",
+"Creation","Deception","Delay","Destruction","Exposure","Failure",
+"Hate or anger","Illness or injury","Investigation","Jealousy","Mistrust","Love or desire",
+"Neglect","Prevention","Property","Punishment","Pursuit","Rejection",
+"Rivalry","Technology","Theft","Transformation","Trust","Vengeance"
+];
+const COMPLEX_RELATED = ["Main plot","Primary subplot","Secondary subplot","Your character","Random event","Twist table"];
+function rollComplexRelated(){
+  const a = D6(), b = D6();
+  if(a===b) return COMPLEX_RELATED[a-1]+' <span class="dice">[doubles: '+a+','+b+']</span>';
+  return '(non-double \u2014 ignore) <span class="dice">['+a+','+b+']</span>';
+}
+
+// ── SCENES ──
+const CARD_SUITS = ["\u2660","\u2665","\u2666","\u2663"];
+function drawCard(){
+  if(Math.random()<2/54) return {rank:"Joker",suit:"",red:false,display:"Joker"};
+  const r = PICK(["A","2","3","4","5","6","7","8","9","10","J","Q","K"]);
+  const s = PICK(CARD_SUITS);
+  const red = s==="\u2665"||s==="\u2666";
+  return {rank:r, suit:s, red:red, display:r+s};
+}
+const SCENE_MAP = {
+  "A":"Scene changes (roll), draw again","Joker":"Scene changes (roll), draw again",
+  "K":"Advance main plot, draw again","Q":"Advance primary subplot, draw again",
+  "J":"Advance secondary subplot, draw again",
+  "10":"Hard crafty challenge","9":"Standard crafty challenge","8":"Easy crafty challenge",
+  "7":"Hard brawny challenge","6":"Standard brawny challenge","5":"Easy brawny challenge",
+  "4":"Hard agile challenge","3":"Standard agile challenge","2":"Easy agile challenge"
+};
+function rollScene(){
+  const c = drawCard();
+  const colorCls = c.red ? 'suit-red' : 'suit-black';
+  let extra = '';
+  if(['J','Q','K'].includes(c.rank)){
+    extra = c.red ? ' <span class="dice">[red = positive for you]</span>' : ' <span class="dice">[black = negative for you]</span>';
+  }
+  return '<span class="'+colorCls+'">'+c.display+'</span> \u2014 '+SCENE_MAP[c.rank]+extra;
+}
+const SCENE_CHANGE = ["Positive (for you)","Negative (for you)","Twist table (roll)","New location (roll)","New person (roll)","New event (roll)"];
+
+// ── SETTLEMENTS ──
+const LARGE_SETTLEMENT = ["Semirural village","Market town","Mining town","Port town","Military town","City/suburb"];
+const LARGE_POPULACE = ["Cheerful/open","Industrious/busy","Indifferent/aloof","Distrustful/wary","Rude/inconsiderate","Nosy/prying"];
+const SMALL_SETTLEMENT = ["Homestead/outpost","Small hamlet","Nomadic settlement","Mining/lumber camp","Farming village","Fishing village"];
+const SMALL_POPULACE = ["Welcoming/friendly","Oppressed/abused","Indifferent/apathetic","Frightened/nervous","Weird/creepy","Xenophobic/hostile"];
+
+// ── URBAN ──
+const URBAN_LOCATIONS = ["Abandoned place","Airport/wharf/port","Bank/moneylender","Bridge/crossroads","Church/temple","Depot/warehouse","Factory/mill","Film/art studio","Fire station/tower","Garage/workshop","Graveyard","Guild/corporation","Gun store/armory","Hospital/physician","Hotel/inn","House/villa","Local landmark","Mall/marketplace","Mansion/palace","Military building","Museum/library","Nightclub/brothel","Office/workhouse","Park/garden","Pharmacy/herbalist","Police station","Prison/guardhouse","Recreation area","Restaurant/tavern","School/academy","Sewer/subway","Slum/ruin","Smithy/craft shop","Theater/cinema","Town hall/center","Zoo/stable"];
+const URBAN_PEOPLE = ["Actor/entertainer","Bartender/server","Beggar/vagrant","Biker/outlander","Bumpkin/peasant","Chef/cook/baker","Chemist/alchemist","Child/youngster","Consultant/guide","Contractor/assassin","Cultist/fanatic","Doctor/herbalist","Driver/wagoner","Elder/senior figure","Engineer/architect","Farmer/smallholder","Gangster/outlaw","Hunter/survivalist","Investigator/tracker","Janitor/cleaner","Laborer/worker","Lawyer/judge","Manager/foreman","Mechanic/artisan","Merchant/vendor","Musician/bard","Police officer/guard","Priest/preacher","Reporter/town crier","Scientist/scholar","Socialite/noble","Soldier/mercenary","Spy/renegade","Teacher/tutor","Thief/criminal","Watchman/bouncer"];
+const URBAN_EVENTS = ["Accident/breakage","Airplane/dragon","Alarm/siren","Ambush/assault","Assassination","Barking dog","Broken vehicle","Crying/arguing","Drone/surveillance","Dying victim","Explosion/fire","Feral/wild animals","Fighting/brawling","Fleeing people","Flood/burst pipe","Horrific violence","Large gathering","Looting/robbery","Lost child/pet","Military presence","Monstrous activity","Prowling vigilante","Roadblock/barrier","Sabotage/vandalism","Screaming/shouting","Serious injury","Shocking revelation","Speeding vehicle","Tech/magic terror","Terrible weather","Theft/mugging","Traffic collision","Trapped people","Troublemakers","Urban decay","Weird/supernatural"];
+
+// ── WILDERNESS ──
+const WILD_TERRAIN = ["Canyon/valley","Forest/jungle/scrub","Hills/mountains","Marsh/swamp/bog","Plains/plateau","River/lake/ocean"];
+const WILD_CLIMATE = ["Arctic/tundra","Cold/arid/barren","Hot/arid/barren","Temperate/moderate","Tropical/savanna","Warm/humid"];
+const WILD_FEATURES = ["Ancient shrine","Bones/corpses","Briar/rocky maze","Bridge/ford","Broken vehicle","Burial grounds","Cabin/hut","Camp/firepit","Cave mouth","Concealed garden","Crumbling ruins","Edible fruit/plants","Enchanted zone","Enigmatic monolith","Extravagant tent","Fortified building","Gorge/ravine","Mine/quarry","Mysterious tower","Old battlefield","Ominous statue","Overgrown ruins","Pond/spring","Quicksand/crevasse","Raging river","Road/path/trail","Rope/log bridge","Sacred ground","Sheltered spot","Solitary building","Standing stones","Steep cliff/ridge","Stream/lake","Timeworn fountain","Town/village/farm","Tranquil oasis"];
+const WILD_FOLK = ["Adventurers","Arrogant noble","Bandits/outlaws","Bear/wolves/big cat","Bounty hunter","Capricious nymph","Caravan/wagon","Carrion birds","Curious animal","Deer/horses/cattle","Elemental guardian","Explorers/travelers","Ghostly figure","Honorable knight","Hungry insects","Hunting party","Invisible faeries","Loner/hermit","Malevolent spirit","Man-eating plant","Merchant/tinker","Military force","Mischievous fey","Monster/undead","Pilgrims/lepers","Runaway/deserter","Rustler/poacher","Scavengers/foragers","Scouts/raiders","Skilled ranger","Sorcerer/witch","Stalker/predator","Territorial beast","Traveling artist","Venomous snake","Wandering minstrel"];
+const WILD_EVENTS = ["Accident/breakage","Ambush/attack","Avalanche/landslide","Circling vultures","Collapsing ground","Criminal activity","Curious animal","Eerie sounds","Falling tree/rocks","Heavy rain/snow","Helicopter/dragon","Hopelessly lost","Howling wolf","Hunting predator","Mirage/illusion","Miserable weather","Monstrous activity","Pungent odor","Rolling log/boulder","Running animal","Shout/scream","Sickness/injury","Sounds of battle","Spoiled supplies","Stalked/followed","Stampede/charge","Storm/blizzard","Strong winds","Sudden silence","Technology/magic","Thick fog/mist","Thunder/lightning","Unusually hot/cold","Warning sign/shot","Weird/supernatural","Wildfire/earthquake"];
+
+// ── DUNGEON ──
+const DUNG_FEATURES = ["Altar/table/desk","Arcane/alien device","Architectural oddity","Bed/bunk/coffin","Books/computers","Chasm/fissure","Chest/cupboard","Cryptic clue/puzzle","Defaced/vandalized","Dirt/decay/rot","Distinctive smell","Drafty/ventilated","Fireplace/pit","Fountain/pool","Furs/hides/blankets","Gruesome scene","Guard animal/pet","Lavish decorations","Macabre apparatus","Markings/writing","Mold/moss/plants","Odd paraphernalia","Painting/tapestry","Pantry/larder/meat","Pillars/stalagmites","Prisoner/corpse","Slick/smooth floor","Stains/damage","Statue/sculpture","Steps/stairs/ladder","Sticky/magnetic","Uneven/rotten floor","Unusual lighting","Vermin nest/hole","Vines/roots/wires","Weaponry/tools"];
+const DUNG_DENIZENS = ["Animals/vermin","Animated plants","Bandits/outlaws","Chimera/hybrid","Cockatrice/wyvern","Constructs/robots","Demons/imps","Dragon/drake","Eldritch horrors","Elemental/nymph","Fairies/fae/elves","Frogfolk/merfolk","Ghosts/wraiths","Ghouls/cannibals","Giant worms/bugs","Gnomes/dwarves","Goblins/kobolds","Harpies/griffins","Hydra/serpent","Lich/necromancer","Lizardfolk","Minotaurs/centaurs","Mutants/beastmen","Ogres/trolls","Orcs/hobgoblins","Otherworldly beasts","Priests/cultists","Scientist/artificer","Skeletons/zombies","Terror birds","Titans/giants","Vampire/mummy","Werebeasts/shifters","Wights/draugar","Witch/hag","Wizard/sorcerer"];
+const DUNG_EVENTS = ["Ambush/sniper","Barking/growling","Blade trap","Crushing trap","Deception/illusion","Entangled/pinned","Explosion/smoke","Fall/trip/stumble","Frontal attack","Guard patrol","Hidden surprise","Hit-and-run attack","Murmur of voices","Noisy floor","Pincer attack","Pit trap","Poisonous gas/trap","Pressure plate","Pungent odor","Raised alarm","Rear attack","Rockfall/collapse","Shouting/roaring","Slippery patch","Sound of movement","Spear/dart trap","Stalked/shadowed","Sticky floor","Strange sounds","Tilting floor","Tripwire","Unexpected visitor","Vermin/beast","Wandering monster","Weeping/screaming","Wrong turn"];
+
+// ── VOYAGE ──
+const VOY_SKY = ["Clear/sunny","Mostly clear/sunny","Mostly cloudy","Overcast","Overcast with drizzle","Overcast with rain"];
+const VOY_WIND = ["Calm","Light breeze","Moderate breeze","Strong breeze","Gale-force winds","Storm/hurricane"];
+const VOY_LANDMARKS = ["Ancient monument","Archipelago","Castle/space station","Coastal village","Dangerous passage","Estuary/inlet/strait","Fishing village","Floating island","Foggy coastline","Fortified island","High rocky outcrop","Iceberg/pumice raft","Island fortress","Islet/asteroid","Leviathan bones","Lighthouse/beacon","Mining island","Penal colony","Plague island","Platform/oil rig","Port town/city","Reef/asteroid field","Rocky shore","Sandy beach","Sea/asteroid cave","Sea fort/moon base","Sheltered bay/cove","Ship cemetery","Shipwreck","Submerged island","Sunken ruins","Tall cliffs","Tropical island","Uninhabited island","Volcanic island","Whirlpool/vortex"];
+const VOY_ENCOUNTERS = ["Abandoned ship","Adrift survivor","Alluring sirens","Cargo ship","Colony transporter","Convoy of ships","Disguised vessel","Exploration ship","Fast sailboat/yacht","Fishing boat","Flotilla of boats","Ghostly/alien ship","Giant turtle/whale","Glowing jellyfish","Hungry shark/alien","Kelpie/shapeshifter","Kraken/monster","Large warship","Merchant galleon","Mermaids/cecaelias","Nymph/elemental","Passenger ship","Patrol boat","Pirate vessel","Pompous noble","Penal transport","Raiders","Scouting vessel","Sea/space serpent","Slave ship","Small warship","Smugglers","Someone on a raft","Undead/cannibals","War galley","Whaling vessel"];
+const VOY_EVENTS = ["Ambush/attack","Betrayal/trickery","Bounty hunter","Brawl/violence","Confrontation/duel","Crash/explosion","Curse/bad omen","Damaged ship","Dead calm","Distress signal","Dolphins/good luck","Dream/vision","Drunken crewman","Fishing incident","Flaring tempers","Floating corpse","Floating debris","Injury/sickness","Kraken/shark attack","Missing person","Mutiny/treachery","Land ahoy!","Pollution/wreckage","Pursuing pirates","Raft/escape pod","Saboteur/spy","Salvage/booty","Sea serpent","Storm/tsunami","Stowaway/intruder","Strong/stellar wind","Theft/murder","Thick fog","Treasure/bounty","Unusual fish/alien","Weird/supernatural"];
+
+// ── SOCIAL ──
+const NEG_ATTITUDE = ["Accusations/insults","Boasts/bluster","Demands/bullying","Mocking/taunts","Threats/intimidation","Yelling/ranting"];
+const NEU_ATTITUDE = ["Boredom/distraction","Inquisitive/nosy","Joking/teasing","Politeness/civility","Preaching/insistence","Teaching/explaining"];
+const POS_ATTITUDE = ["Assistance/guidance","Beseeching/groveling","Entertaining/regaling","Flirting/flattering","Praising/admiring","Sympathizing"];
+const SUBJECT = ["Animal/pet","Assault/invasion","Behavior/sin","Brawl/battle/duel","Celebrity/luminary","Children/relatives","Clue/rumor/story","Courage/heroism","Disaster/accident","Discovery/creation","Disease/sickness","Family/heritage","Festival/party","Geography/place","History/past","Intellect/wits","Item/equipment","Knowledge/study","Local news/gossip","Murder/death","Mystery/secret","Person/faction","Personal agenda","Physique/beauty","Private matters","Profession/vocation","Quest/adventure","Recent event","Relationship/love","Religion/faith","Resources/property","Skill/talent/aptitude","Status/reputation","Theft/robbery","Wealth/treasure","Weather/climate"];
+const DEMEANOR = ["Accepting/casual","Aggressive/pushy","Aloof/haughty","Ambitious/eager","Anxious/restless","Assertive/confident","Bossy/commanding","Brooding/reflective","Callous/insensitive","Candid/blunt","Careful/cautious","Caring/worrier","Cold/calculating","Condescending","Conservative","Cynical/sarcastic","Daring/impulsive","Disagreeable/rude","Distrustful/fearful","Emotional/excitable","Empathetic/astute","Energetic/spirited","Forthright/sincere","Gloomy/grumpy","Hesitant/reluctant","Impatient/irritable","Lighthearted/lively","Merry/cheerful","Opinionated/cocky","Passionate/ardent","Relaxed/calm","Self-absorbed","Skeptical/doubtful","Stoic/apathetic","Thoughtful/discrete","Wary/vigilant"];
+const SPEECH = ["1000 yard stare","Always interrupts","Avoids eye contact","Bites lip/nails","Breathes loudly","Chain smoker","Chews gum/leaves","Constant snacking","Cracks knuckles","Darting eyes","Drinks excessively","Drums fingers","Fiddles/fidgets","Folded arms","Gestures wildly","Giggles/chuckles","Hands in pockets","Hums/whistles","Mumbles/slurs","Often clears throat","Picks nose/teeth","Plays with hair","Rubs eyes/mouth","Scratches a lot","Slouching posture","Speaks quietly","Strokes chin/beard","Stutters/pauses","Talks/laughs loudly","Taps foot","Touches/traces scar","Tilts head & frowns","Tugs ear/clothing","Twists jewelry","Unusual accent","Whispers/rasps"];
+
+function rollDisposition(){
+  const bias = getPill('disp-bias','neutral');
+  const r = D6();
+  let attitude, detail;
+  if(bias==='hostile'){
+    if(r<=3){ attitude='Negative'; detail=rollD6(NEG_ATTITUDE); }
+    else if(r<=5){ attitude='Neutral'; detail=rollD6(NEU_ATTITUDE); }
+    else { attitude='Positive'; detail=rollD6(POS_ATTITUDE); }
+  } else if(bias==='friendly'){
+    if(r<=1){ attitude='Negative'; detail=rollD6(NEG_ATTITUDE); }
+    else if(r<=3){ attitude='Neutral'; detail=rollD6(NEU_ATTITUDE); }
+    else { attitude='Positive'; detail=rollD6(POS_ATTITUDE); }
+  } else {
+    if(r<=1){ attitude='Negative'; detail=rollD6(NEG_ATTITUDE); }
+    else if(r<=5){ attitude='Neutral'; detail=rollD6(NEU_ATTITUDE); }
+    else { attitude='Positive'; detail=rollD6(POS_ATTITUDE); }
+  }
+  const cls = attitude==='Positive'?'yes':attitude==='Negative'?'no':'';
+  return '<span class="'+cls+'">'+attitude+'</span>: '+detail+' <span class="dice">[rolled '+r+', bias: '+bias+']</span>';
+}
+
+// ── NAMES ──
+const MALE_NAMES = ["Adam/Alonso","Anthony/Andr\u00e9s","Benjamin/Antonio","Brian/Benicio","Charles/Bruno","Craig/Carlos","Daniel/Diego","David/Eduardo","Edward/El\u00edas","Eric/Emiliano","Frank/Emmanuel","Gary/Enzo","George/Felipe","Gregory/Fernando","Harold/Francisco","Howard/Franco","James/Ismael","Jason/Jorge","Jeffrey/Jose","Jonathan/Leonardo","Joseph/Lorenzo","Kevin/Luca","Matthew/Luciano","Michael/Manuel","Paul/Marco","Phillip/Mateo","Raymond/Mauricio","Robert/Miguel","Shane/Pablo","Stephen/Pedro","Thomas/Rafael","Timothy/Rodrigo","Todd/Santino","Walter/Sergio","Wayne/Sim\u00f3n","William/Tadeo"];
+const FEMALE_NAMES = ["Alice/Abigail","Amy/Adriana","Anna/Alicia","Barbara/Amelia","Bethany/Aurora","Carol/Catalina","Catherine/Chloe","Christine/Clara","Deborah/Claudia","Diana/Daniela","Dorothy/Danna","Elizabeth/Delfina","Emily/Elena","Gail/Elisa","Grace/Francesca","Helen/Gabriela","Jennifer/Isabella","Jessica/Josefa","Julia/Julieta","Karen/Lola","Katie/Luciana","Kimberly/Luna","Laura/Mar\u00eda","Lisa/Martina","Louise/Miranda","Margaret/Natalia","Michelle/Nicole","Pamela/Olivia","Patricia/Pen\u00e9lope","Rachel/Rafaela","Rebecca/Regina","Ruth/Sof\u00eda","Samantha/Valentina","Sarah/Violeta","Susan/Ximena","Tiffany/Zoe"];
+const SURNAMES = ["Allen/Aguilar","Anderson/Alvarado","Baker/Barrios","Campbell/Burgos","Clark/Calder\u00f3n","Cook/Castillo","Davis/Cruz","Evans/D\u00edaz","Ford/Estrada","Foster/Fern\u00e1ndez","Gibson/Flores","Green/Garcia","Harris/G\u00f3mez","Hill/Gonz\u00e1lez","Jackson/Guerra","Johnson/Guti\u00e9rrez","Jones/Hern\u00e1ndez","Kelly/Jim\u00e9nez","Lee/L\u00f3pez","Little/Madrigal","Mason/Maga\u00f1a","Miller/Mart\u00ednez","Moore/Morales","Nelson/Paredes","Parker/P\u00e9rez","Price/Portillo","Robinson/Reyes","Rogers/Rivera","Ross/Rodriguez","Scott/Rojas","Smith/Romero","Taylor/Salas","Thompson/Sanchez","Watson/Santiago","Wilson/Torres","Young/Vargas"];
+const FICT_PREFIX = ["And","Barth","Cart","Cyn","Dar","Denn","Eld","Fill","Gal","Gor","Haeth","Hord","Izz","Jaer","Kyn","Lok","Lyth","Mag","Mord","Ness","Nol","Ord","Port","Quint","Rabb","Roth","Sard","Sim","Tann","Thelm","Ulin","Venc","Vepp","Wald","Wern","Zar"];
+const FICT_SUFFIX = ["-aer","-ak","-alis","-ard","-as","-astin","-ed","-egar","-en","-ent","-er","-eray","-esia","-ey","-ia","-ian","-iek","-ig","-ild","-in","-ion","-ique","-ith","-obund","-ock","-on","-ond","-op","-orish","-uis","-uli","-un","-unak","-ustin","-utier","-yn"];
+
+function rollNameEntry(table){
+  const entry = roll6x6(table);
+  const pref = getPill('name-culture','both');
+  if(pref==='both') return entry;
+  const parts = entry.split('/');
+  if(pref==='anglo') return parts[0];
+  if(pref==='hispanic') return parts.length>1 ? parts[1] : parts[0];
+  return entry;
+}
+function rollFictionalCombined(){
+  const p = roll6x6(FICT_PREFIX);
+  const s = roll6x6(FICT_SUFFIX);
+  const combined = p + s.replace(/^-/,'');
+  return combined+' <span class="dice">['+p+' + '+s+']</span>';
+}
+
+// ── ARCANE ──
+const ARCANE_SPELLS = ["Animate minion","Aura/armor","Barrier/wall","Blind/deafen","Bolt/ball/blast","Communicate","Conceal/obscure","Cone/fan/spray","Control/charm","Create/restore","Destroy/weaken","Detect/sense","Dispel/Banish","Divination/scry","Drain/absorb","Enchant/imbue","Endure/resist","Enhance/enlarge","Entangle/entrap","Fly/surf/levitate","Forcefield/shield","Heal/repair","Illusion/deceive","Protect/adapt","Ray/beam/arc","Reduce/shrink","Repel/deflect","Reveal/identify","Shapeshift/mutate","Sphere/globe","Stun/confuse/fear","Summon/conjure","Teleport/stride","Touch/strike/smite","Transmute/shape","Ward/symbol/trap"];
+const SPELL_LIMITS = ["Causes collateral/environmental damage","Drains caster resolve instead of costing karma","Requires a focus, raw material, or components","Only directly targets the caster and their gear","Ritualistic and requires a few minutes to cast","Requires gestures and/or incantations"];
+const POWER_TRAPPINGS = ["Acid/magma","Air/wind/gas","Animal/beast","Birds/airborne","Blades/spikes","Blood/ichor","Body/flesh/muscle","Bone/chitin","Darkness/void","Death/undead","Earth/clay","Feeling/emotion","Fire/heat","Fish/aquatic","Force/kinetic","Gravity/pressure","Human/creature","Ice/cold","Insects/bugs","Life/vitality/health","Light/sunlight","Metal/mineral","Mind/thought","Plant/wood/bark","Poison/venom","Shadow/gloom","Smoke/fog/mist","Sonic/sound","Soul/spirit/ghost","Space/cosmic","Stone/rock/sand","Tentacles/monster","Thunder/lightning","Time/entropy","Water/liquid","Weather/storm"];
+const ARCANE_ITEMS = ["Amulet/necklace","Axe/machete","Belt/girdle","Boots/shoes","Bottle/flask","Bow/rifle","Bracers/bracelet","Cloak/cape","Crossbow/shotgun","Dagger/knife","Figurine/statuette","Flail/whip","Gem/crystal","Gloves/gauntlets","Goggles/mask","Hat/helm/circlet","Haversack/bag","Horn/flute/harp","Leather/light armor","Mace/club/hammer","Manual/tome","Metal/heavy armor","Polearm/lance","Potion/oil/dust","Quiver/bandolier","Ring/band","Robe/vest/shirt","Scroll","Shield/buckler","Single arrow/bolt","Skull/deck/cube","Sling/pistol","Spear/trident","Staff/scepter","Sword/blade","Wand/rod"];
+const ITEM_FEATURES = ["Adamantine/tough","Animal motif","Animated/living","Bane (specify foe)","Beautiful/artistic","Blood drinker","Crudely fashioned","Distinctive emblem","Distorts light","Emits a faint hum","Engraved/runic","Gem-encrusted","Heavy/awkward","Holy/blessed","Horrific visage","Hot/cold sensation","Inspires dread","Intricate/detailed","Invokes anger/rage","Light/balanced","Mundane form","Mystical glow","Notched/tattered","Odd smell/sounds","Ornate/decorative","Radiates energy","Sentient/speaks","Soul devourer","Spectral/ethereal","Strange feeling","Tarnished/rotten","Unholy/demonic","Unique appearance","Valuable material","Vorpal/keen-edged","Weird/alien design"];
+
+// ── TAGS ──
+const PERSON_TAGS = ["Arrogant/proud","Attractive/seductive","Brutal/violent","Caring/protective","Charming/suave","Clever/cunning","Clumsy/inept","Cowardly/timid","Creepy/weird","Cruel/ruthless","Envious/suspicious","Friendly/affable","Greedy/impatient","Gullible/foolish","Helpful/supportive","Hostile/aggressive","Humble/shy","Ignorant/oblivious","Injured/sick","Intoxicated/crazy","Lazy/apathetic","Loud/unsubtle","Muscular/strong","Nosy/prying","Overconfident","Paranoid/cautious","Pious/righteous","Quick/nimble","Selfish/vain","Smelly/filthy","Sneaky/devious","Squeamish/fussy","Stubborn/resolute","Treacherous/tricky","Ugly/monstrous","Unfriendly/rude"];
+const LOCATION_TAGS = ["Abandoned","Barricaded/locked","Cheap/slipshod","Clean/tidy","Cool/cold/drafty","Crowded/cluttered","Damaged","Damp/flooded","Demolished","Dirty/messy","Empty/looted","Exposed/open","Forbidden/closed","Fortified/reinforced","Functional/spartan","Gloomy/unlit","Imposing/lavish","Infested/overrun","Large/sprawling","Modernized","Mysterious/strange","New/renovated","Old/decrepit","Old-fashioned","Overwhelming","Polluted/toxic","Prominent","Scorched/burning","Secure/guarded","Small/cramped","Spooky/creepy","Unassuming","Underwhelming","Vandalized","Warm/hot","Well-stocked"];
+
+
+// ═══════════════════════════════════════
+// ── SECTIONS ──
+// ═══════════════════════════════════════
+
+const sections = [
+  {
+    id:"simple", title:"Simple Questions",
+    oracles:[
+      {
+        id:"sq",label:"Yes/No Question",
+        settingsHtml:'<div class="oracle-settings"><label>Likelihood: <select id="setting-likelihood"><option value="verylikely">Very Likely (2+)</option><option value="likely">Likely (3+)</option><option value="maybe" selected>Maybe (4+)</option><option value="unlikely">Unlikely (5+)</option><option value="veryunlikely">Very Unlikely (6)</option></select></label></div>',
+        roller: rollSimpleQuestion
+      },
+      {id:"cav",label:"Caveat",roller:rollCaveat},
+      {
+        id:"scaled",label:"Scaled Question (1\u20136)",
+        settingsHtml:'<div class="oracle-settings"><div class="setting-group"><label style="margin-right:0.2rem">Weight:</label><div class="pill-group" id="pillgroup-scaled-weight"><button class="pill active" data-value="normal" onclick="setPill(\'scaled-weight\',this)">1d6</button><button class="pill" data-value="2dice" onclick="setPill(\'scaled-weight\',this)">2d6</button><button class="pill" data-value="3dice" onclick="setPill(\'scaled-weight\',this)">3d6</button></div></div><div class="setting-group"><label>Use: <select id="setting-scaled-hilo"><option value="high">Highest</option><option value="low">Lowest</option></select></label></div></div>',
+        roller: rollScaled
+      },
+    ]
+  },
+  {
+    id:"complex", title:"Complex Questions",
+    oracles:[
+      {id:"ca",label:"The answer involves...",roller:function(){return roll6x6(COMPLEX_ANSWER);}},
+      {id:"cr",label:"And could be related to...",roller:rollComplexRelated},
+    ]
+  },
+  {
+    id:"scenes", title:"Story Structure & Scenes",
+    oracles:[
+      {id:"sc",label:"Draw a Card / Scene",roller:rollScene},
+      {id:"sch",label:"Scene Change (if needed)",roller:function(){return rollD6(SCENE_CHANGE);}},
+    ]
+  },
+  {
+    id:"settlements", title:"Settlements",
+    settingsHtml:'<div class="oracle-settings" style="margin-bottom:0.6rem"><div class="setting-group"><label style="margin-right:0.2rem">Size:</label><div class="pill-group" id="pillgroup-settlement-size"><button class="pill active" data-value="both" onclick="setPill(\'settlement-size\',this)">Both</button><button class="pill" data-value="large" onclick="setPill(\'settlement-size\',this)">Large Only</button><button class="pill" data-value="small" onclick="setPill(\'settlement-size\',this)">Small Only</button></div></div></div>',
+    oracles:[
+      {id:"ls",label:"Large Settlement Type",roller:function(){return rollD6(LARGE_SETTLEMENT);}, hideWhen:function(){return getPill('settlement-size','both')==='small';}},
+      {id:"lp",label:"Large Settlement Populace",roller:function(){return rollD6(LARGE_POPULACE);}, hideWhen:function(){return getPill('settlement-size','both')==='small';}},
+      {id:"ss",label:"Small Settlement Type",roller:function(){return rollD6(SMALL_SETTLEMENT);}, hideWhen:function(){return getPill('settlement-size','both')==='large';}},
+      {id:"sp",label:"Small Settlement Populace",roller:function(){return rollD6(SMALL_POPULACE);}, hideWhen:function(){return getPill('settlement-size','both')==='large';}},
+    ]
+  },
+  {
+    id:"urban", title:"Urban Adventures",
+    oracles:[
+      {id:"ul",label:"Urban Location",roller:function(){return roll6x6(URBAN_LOCATIONS);}},
+      {id:"up",label:"Urban Person",roller:function(){return roll6x6(URBAN_PEOPLE);}},
+      {id:"ue",label:"Urban Event",roller:function(){return roll6x6(URBAN_EVENTS);}},
+    ]
+  },
+  {
+    id:"wilderness", title:"Wilderness Travel",
+    oracles:[
+      {id:"wt",label:"Terrain",roller:function(){return rollD6(WILD_TERRAIN);}},
+      {id:"wc",label:"Climate",roller:function(){return rollD6(WILD_CLIMATE);}},
+      {id:"wf",label:"Wilderness Feature",roller:function(){return roll6x6(WILD_FEATURES);}},
+      {id:"wk",label:"Wilderness Folk",roller:function(){return roll6x6(WILD_FOLK);}},
+      {id:"we",label:"Wilderness Event",roller:function(){return roll6x6(WILD_EVENTS);}},
+    ]
+  },
+  {
+    id:"dungeon", title:"Dungeon Crawls",
+    oracles:[
+      {id:"df",label:"Dungeon Feature",roller:function(){return roll6x6(DUNG_FEATURES);}},
+      {id:"dd",label:"Dungeon Denizens",roller:function(){return roll6x6(DUNG_DENIZENS);}},
+      {id:"de",label:"Dungeon Event",roller:function(){return roll6x6(DUNG_EVENTS);}},
+    ]
+  },
+  {
+    id:"voyage", title:"Distant Voyages",
+    oracles:[
+      {id:"vs",label:"Sky Conditions",roller:function(){return rollD6(VOY_SKY);}},
+      {id:"vw",label:"Wind Conditions",roller:function(){return rollD6(VOY_WIND);}},
+      {id:"vl",label:"Voyage Landmark",roller:function(){return roll6x6(VOY_LANDMARKS);}},
+      {id:"vc",label:"Voyage Encounter",roller:function(){return roll6x6(VOY_ENCOUNTERS);}},
+      {id:"ve",label:"Voyage Event",roller:function(){return roll6x6(VOY_EVENTS);}},
+    ]
+  },
+  {
+    id:"social", title:"Social Interaction",
+    oracles:[
+      {
+        id:"disp",label:"Disposition & Attitude",
+        settingsHtml:'<div class="oracle-settings"><div class="setting-group"><label style="margin-right:0.2rem">Bias:</label><div class="pill-group" id="pillgroup-disp-bias"><button class="pill" data-value="hostile" onclick="setPill(\'disp-bias\',this)">Likely Hostile</button><button class="pill active" data-value="neutral" onclick="setPill(\'disp-bias\',this)">Neutral</button><button class="pill" data-value="friendly" onclick="setPill(\'disp-bias\',this)">Likely Friendly</button></div></div></div>',
+        roller: rollDisposition
+      },
+      {id:"subj",label:"Subject of Interest",roller:function(){return roll6x6(SUBJECT);}},
+      {id:"dem",label:"General Demeanor",roller:function(){return roll6x6(DEMEANOR);}},
+      {id:"spch",label:"Speech/Mannerisms",roller:function(){return roll6x6(SPEECH);}},
+    ]
+  },
+  {
+    id:"names", title:"Character Names",
+    settingsHtml:'<div class="oracle-settings" style="margin-bottom:0.6rem"><div class="setting-group"><label style="margin-right:0.2rem">Culture:</label><div class="pill-group" id="pillgroup-name-culture"><button class="pill active" data-value="both" onclick="setPill(\'name-culture\',this)">Both (A / B)</button><button class="pill" data-value="anglo" onclick="setPill(\'name-culture\',this)">Anglo-American</button><button class="pill" data-value="hispanic" onclick="setPill(\'name-culture\',this)">Hispanic-American</button></div></div><div class="setting-group" style="margin-left:0.5rem"><label><input type="checkbox" id="setting-fict-combine" checked> Auto-combine fictional name</label></div></div>',
+    oracles:[
+      {id:"mn",label:"Male Forename",roller:function(){return rollNameEntry(MALE_NAMES);}},
+      {id:"fn",label:"Female Forename",roller:function(){return rollNameEntry(FEMALE_NAMES);}},
+      {id:"sn",label:"Surname",roller:function(){return rollNameEntry(SURNAMES);}},
+      {id:"fp",label:"Fictional Name \u2014 Prefix",roller:function(){return roll6x6(FICT_PREFIX);}, hideWhen:function(){return getSetting('fict-combine',true);}},
+      {id:"fs",label:"Fictional Name \u2014 Suffix",roller:function(){return roll6x6(FICT_SUFFIX);}, hideWhen:function(){return getSetting('fict-combine',true);}},
+      {id:"fc",label:"Fictional Name (Combined)",roller:rollFictionalCombined, hideWhen:function(){return !getSetting('fict-combine',true);}},
+    ]
+  },
+  {
+    id:"arcane", title:"Arcane Items & Spells",
+    settingsHtml:'<div class="oracle-settings" style="margin-bottom:0.6rem"><div class="setting-group"><label style="margin-right:0.2rem">Roll for:</label><div class="pill-group" id="pillgroup-arcane-mode"><button class="pill active" data-value="all" onclick="setPill(\'arcane-mode\',this)">Everything</button><button class="pill" data-value="spell" onclick="setPill(\'arcane-mode\',this)">Spell Only</button><button class="pill" data-value="item" onclick="setPill(\'arcane-mode\',this)">Item Only</button></div></div></div>',
+    oracles:[
+      {id:"as",label:"Arcane Spell",roller:function(){return roll6x6(ARCANE_SPELLS);}, hideWhen:function(){return getPill('arcane-mode','all')==='item';}},
+      {id:"al",label:"Spell Limitation",roller:function(){return rollD6(SPELL_LIMITS);}, hideWhen:function(){return getPill('arcane-mode','all')==='item';}},
+      {id:"pt",label:"Power Trapping",roller:function(){return roll6x6(POWER_TRAPPINGS);}},
+      {id:"ai",label:"Arcane Item Form",roller:function(){return roll6x6(ARCANE_ITEMS);}, hideWhen:function(){return getPill('arcane-mode','all')==='spell';}},
+      {id:"ifl",label:"Item Feature",roller:function(){return roll6x6(ITEM_FEATURES);}, hideWhen:function(){return getPill('arcane-mode','all')==='spell';}},
+    ]
+  },
+  {
+    id:"tags", title:"Descriptive Tags",
+    settingsHtml:'<div class="oracle-settings" style="margin-bottom:0.6rem"><div class="setting-group"><label>Extra rolls: <select id="setting-tag-count"><option value="1" selected>1 tag each</option><option value="2">2 tags each</option><option value="3">3 tags each</option></select></label></div></div>',
+    oracles:[
+      {id:"ptag",label:"Person Tag",roller:function(){
+        var n = parseInt(getSetting('tag-count','1'));
+        var results = [];
+        for(var i=0;i<n;i++) results.push(roll6x6(PERSON_TAGS));
+        return results.join(', ');
+      }},
+      {id:"ltag",label:"Location Tag",roller:function(){
+        var n = parseInt(getSetting('tag-count','1'));
+        var results = [];
+        for(var i=0;i<n;i++) results.push(roll6x6(LOCATION_TAGS));
+        return results.join(', ');
+      }},
+    ]
+  },
+];
+
+
+// ═══════════════════════════════════
+// ── RENDER ENGINE ──
+// ═══════════════════════════════════
+
+function setPill(groupId, clickedBtn){
+  var btns = document.querySelectorAll('#pillgroup-'+groupId+' .pill');
+  btns.forEach(function(b){b.classList.remove('active');});
+  clickedBtn.classList.add('active');
+  updateCardVisibility();
+}
+
+function updateCardVisibility(){
+  for(var s=0;s<sections.length;s++){
+    var sec = sections[s];
+    for(var o=0;o<sec.oracles.length;o++){
+      var oracle = sec.oracles[o];
+      var card = document.getElementById('card-'+oracle.id);
+      if(!card) continue;
+      if(oracle.hideWhen && oracle.hideWhen()){
+        card.style.display = 'none';
+      } else {
+        card.style.display = '';
+      }
+    }
+  }
+}
+
+function buildApp(){
+  var app = document.getElementById('app');
+  var html = '';
+  for(var s=0;s<sections.length;s++){
+    var sec = sections[s];
+    html += '<div class="section" id="sec-'+sec.id+'">';
+    html += '<div class="section-header" onclick="toggleSection(\''+sec.id+'\')">';
+    html += '<h2>'+sec.title+'</h2>';
+    html += '<div class="section-actions">';
+    html += '<button class="reroll-btn" onclick="event.stopPropagation();rollSection(\''+sec.id+'\');">\u2684 Reroll</button>';
+    html += '<span class="toggle" id="toggle-'+sec.id+'">\u25BC</span>';
+    html += '</div></div>';
+    html += '<div class="section-body" id="body-'+sec.id+'">';
+    if(sec.settingsHtml) html += sec.settingsHtml;
+    html += '<div class="oracle-grid">';
+    for(var o=0;o<sec.oracles.length;o++){
+      var oracle = sec.oracles[o];
+      html += '<div class="oracle-card" id="card-'+oracle.id+'">';
+      html += '<button class="mini-reroll" onclick="rollOne(\''+sec.id+'\',\''+oracle.id+'\')" title="Reroll this oracle">\u27F3</button>';
+      html += '<h3>'+oracle.label+'</h3>';
+      if(oracle.settingsHtml) html += oracle.settingsHtml;
+      html += '<div class="oracle-result" id="result-'+oracle.id+'">\u2014</div>';
+      html += '</div>';
+    }
+    html += '</div></div></div>';
+  }
+  app.innerHTML = html;
+
+  // Wire up settings changes for visibility
+  document.querySelectorAll('.oracle-settings select, .oracle-settings input[type="checkbox"]').forEach(function(el){
+    el.addEventListener('change', updateCardVisibility);
+  });
+  updateCardVisibility();
+}
+
+function rollOne(secId, oracleId){
+  var sec = sections.find(function(s){return s.id===secId;});
+  var o = sec.oracles.find(function(x){return x.id===oracleId;});
+  if(o.hideWhen && o.hideWhen()) return;
+  var el = document.getElementById('result-'+o.id);
+  el.classList.add('rolling');
+  setTimeout(function(){
+    el.innerHTML = o.roller();
+    el.classList.remove('rolling');
+  },150);
+}
+
+function rollSection(secId){
+  var sec = sections.find(function(s){return s.id===secId;});
+  var body = document.getElementById('body-'+secId);
+  body.classList.remove('hidden');
+  document.getElementById('toggle-'+secId).classList.remove('collapsed');
+  for(var o=0;o<sec.oracles.length;o++){
+    rollOne(secId, sec.oracles[o].id);
+  }
+}
+
+function rollAll(){
+  for(var s=0;s<sections.length;s++){
+    rollSection(sections[s].id);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleSection(secId){
+  var body = document.getElementById('body-'+secId);
+  var toggle = document.getElementById('toggle-'+secId);
+  body.classList.toggle('hidden');
+  toggle.classList.toggle('collapsed');
+}
+
+buildApp();
+rollAll();
+</script>
+</body>
+</html>
